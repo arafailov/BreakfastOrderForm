@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Заказ завтраков | ARTSTUDIO Nevsky</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Circe:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Circe', sans-serif;
+      background: #ffffff url('rbi-pm-pattern3.svg') repeat;
+      color: #262d36;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    header img {
+      max-width: 200px;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 400;
+      text-align: center;
+      margin: 0;
+    }
+    main {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-section {
+      margin-bottom: 2rem;
+    }
+    .form-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    button, select, input[type="text"], textarea {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-family: 'Circe', sans-serif;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #c49a5f;
+      color: white;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #a47f48;
+    }
+    .language-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .language-toggle button {
+      width: auto;
+      padding: 0.5rem 1rem;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+        background-size: cover;
+      }
+      main {
+        padding: 1.5rem;
+        margin: 1rem auto;
+        box-shadow: none;
+      }
+      header img {
+        max-width: 150px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .form-section h2 {
+        font-size: 1.25rem;
+      }
+      button, select, input[type="text"], textarea {
+        font-size: 1rem;
+        padding: 0.5rem;
+      }
+      .language-toggle {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .language-toggle button {
+        width: 100%;
+      }
+    }
+    .breakfast-description {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="ARTSTUDIO%20Nevsky%20лого.png" alt="Логотип ARTSTUDIO Nevsky">
+    <img src="RBI%20PM%20лого.png" alt="Логотип RBI PM">
+    <h1 id="form-title">Заказ завтраков</h1>
+
+    <div class="language-toggle">
+      <button id="ru-btn">Русский</button>
+      <button id="en-btn">English</button>
+    </div>
+  </header>
+
+  <main>
+    <form id="breakfast-form">
+      <div class="form-section" id="apartment-section">
+        <h2 id="apartment-title">Номер апартамента</h2>
+        <input type="text" id="apartment-number" name="apartment-number" placeholder="Введите номер апартамента" required>
+      </div>
+
+      <div class="form-section" id="format-section">
+        <h2 id="format-title">Формат подачи</h2>
+        <select id="format-select" name="format-select" required>
+          <option value="">Выберите формат подачи</option>
+          <option value="restaurant">В ресторане</option>
+          <option value="lunchbox">Ланчбокс</option>
+        </select>
+        <p id="format-info" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></p>
+      </div>
+
+      <div class="form-section" id="time-section" style="display: none;">
+        <h2 id="time-title">Время подачи</h2>
+        <select id="time-select" name="time-select" required></select>
+      </div>
+
+      <div class="form-section" id="guests-section">
+        <h2 id="guests-title">Количество гостей</h2>
+        <select id="guests-count" name="guests-count" required>
+          <option value="">Выберите количество гостей</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+
+      <div id="guests-details"></div>
+
+      <div class="form-section" id="comments-section">
+        <h2 id="comments-title">Комментарии к заказу</h2>
+        <textarea id="comments" name="comments" placeholder="Если есть пожелания или особенности — укажите здесь" rows="4" style="width: 100%; padding: 0.75rem; margin-top: 0.5rem; border: 1px solid #ccc; border-radius: 0.5rem; font-family: 'Circe', sans-serif; font-size: 1rem;"></textarea>
+      </div>
+
+      <div class="form-section" id="submit-section">
+        <button type="submit" id="submit-button">Подтвердить заказ</button>
+      </div>
+
+    </form>
+  </main>
+<script>
+let currentLanguage = 'ru';
+
+const ruBtn = document.getElementById('ru-btn');
+const enBtn = document.getElementById('en-btn');
+const formTitle = document.getElementById('form-title');
+const apartmentTitle = document.getElementById('apartment-title');
+const apartmentNumber = document.getElementById('apartment-number');
+const formatSelectEl = document.getElementById('format-select');
+const formatInfoEl = document.getElementById('format-info');
+const timeSection = document.getElementById('time-section');
+const timeSelect = document.getElementById('time-select');
+const guestsCount = document.getElementById('guests-count');
+const guestsDetails = document.getElementById('guests-details');
+const commentsTitle = document.getElementById('comments-title');
+const commentsField = document.getElementById('comments');
+const submitButton = document.getElementById('submit-button');
+
+const breakfastOptions = [
+  { value: 'hearty', ru: 'Сытный завтрак – 850₽', en: 'Hearty breakfast – 850₽' },
+  { value: 'sweet', ru: 'Сладкий завтрак – 850₽', en: 'Sweet breakfast – 850₽' },
+  { value: 'assorted', ru: 'Ассорти завтрак – 1100₽', en: 'Assorted breakfast – 1100₽' },
+  { value: 'turkish', ru: 'Турецкий завтрак – 1800₽ (только ресторан)', en: 'Turkish breakfast – 1800₽ (restaurant only)' },
+];
+
+const breakfastDescriptions = {
+  hearty: {
+    ru: "Глазунья с сосисками, сыр, овощная нарезка, каша и напиток на выбор",
+    en: "Fried eggs with sausages, cheese, vegetable platter, porridge and a drink of choice"
+  },
+  sweet: {
+    ru: "Блинчики, сырники, сметана, сгущенка, варенье, каша и напиток на выбор",
+    en: "Pancakes, cheesecakes, sour cream, condensed milk, jam, porridge and a drink of choice"
+  },
+  assorted: {
+    ru: "Глазунья с сосисками, блинчик, сырник, сметана, сгущенка, варенье, сыр, овощная нарезка, каша и напиток на выбор",
+    en: "Fried eggs with sausages, pancake, cheesecake, sour cream, condensed milk, jam, cheese, vegetable platter, porridge and a drink of choice"
+  },
+  turkish: {
+    ru: "Овощная тарелка, сливки, два вида сыра, пирог, яйцо, картофель фри, оливки, мед, лепешка, чайник турецкого чая",
+    en: "Vegetable plate, cream, two types of cheese, pie, egg, french fries, olives, honey, flatbread, Turkish tea pot"
+  }
+};
+
+const porridges = [
+  { value: 'none', ru: 'Без каши', en: 'No porridge' },
+  { value: 'oatmeal', ru: 'Овсяная каша', en: 'Oatmeal' },
+  { value: 'rice', ru: 'Рисовая каша', en: 'Rice porridge' },
+];
+
+const drinks = [
+  { value: 'black_tea', ru: 'Чай черный', en: 'Black tea' },
+  { value: 'green_tea', ru: 'Чай зеленый', en: 'Green tea' },
+  { value: 'americano', ru: 'Американо', en: 'Americano' },
+  { value: 'espresso', ru: 'Эспрессо', en: 'Espresso' },
+  { value: 'apple_juice', ru: 'Яблочный сок', en: 'Apple juice' },
+  { value: 'orange_juice', ru: 'Апельсиновый сок', en: 'Orange juice' },
+];
+
+const turkishDishes = [
+  { value: 'turkish_omelette', ru: 'Турецкий омлет', en: 'Turkish omelette' },
+  { value: 'fried_eggs', ru: 'Яичница с колбасой', en: 'Fried eggs with sausage' },
+];
+
+const extras = [
+  { value: 'croissant', ru: 'Круассан – 100₽', en: 'Croissant – 100₽' },
+  { value: 'yogurt', ru: 'Домашний йогурт – 300₽', en: 'Homemade yogurt – 300₽' },
+  { value: 'salmon', ru: 'Лосось – 250₽', en: 'Salmon – 250₽' },
+  { value: 'alt_milk', ru: 'Альтернативное молоко (кокосовое) – 150₽', en: 'Alternative milk (coconut) – 150₽' },
+];
+const translations = {
+  ru: {
+    formTitle: 'Заказ завтраков',
+    apartmentTitle: 'Номер апартамента',
+    apartmentPlaceholder: 'Введите номер апартамента',
+    formatTitle: 'Формат подачи',
+    formatPlaceholder: 'Выберите формат подачи',
+    formatRestaurant: 'В ресторане',
+    formatLunchbox: 'Ланчбокс',
+    timeTitle: 'Время подачи',
+    guestsTitle: 'Количество гостей',
+    guestsPlaceholder: 'Выберите количество гостей',
+    commentsTitle: 'Комментарии к заказу',
+    commentsPlaceholder: 'Если есть пожелания или особенности — укажите здесь',
+    submitButton: 'Подтвердить заказ'
+  },
+  en: {
+    formTitle: 'Breakfast Order',
+    apartmentTitle: 'Apartment Number',
+    apartmentPlaceholder: 'Enter apartment number',
+    formatTitle: 'Serving format',
+    formatPlaceholder: 'Select serving format',
+    formatRestaurant: 'At the restaurant',
+    formatLunchbox: 'Lunchbox',
+    timeTitle: 'Serving time',
+    guestsTitle: 'Number of guests',
+    guestsPlaceholder: 'Select number of guests',
+    commentsTitle: 'Order comments',
+    commentsPlaceholder: 'If you have any wishes or notes — specify here',
+    submitButton: 'Confirm order'
+  }
+};
+
+// Обновление текстов при смене языка
+function updateTexts() {
+  const t = translations[currentLanguage];
+
+  formTitle.textContent = t.formTitle;
+  apartmentTitle.textContent = t.apartmentTitle;
+  apartmentNumber.placeholder = t.apartmentPlaceholder;
+document.getElementById('format-title').textContent = t.formatTitle;
+document.getElementById('time-title').textContent = t.timeTitle;
+document.getElementById('guests-title').textContent = t.guestsTitle;
+document.getElementById('comments-title').textContent = t.commentsTitle;
+
+
+
+  if (formatSelectEl.options.length >= 3) {
+    formatSelectEl.options[0].textContent = t.formatPlaceholder;
+    formatSelectEl.options[1].textContent = t.formatRestaurant;
+    formatSelectEl.options[2].textContent = t.formatLunchbox;
+  }
+
+  if (guestsCount.options.length > 0) {
+    guestsCount.options[0].textContent = t.guestsPlaceholder;
+  }
+
+
+  commentsField.placeholder = t.commentsPlaceholder;
+  submitButton.textContent = t.submitButton;
+
+  translateStaticTexts(); 
+
+  if (guestsCount.value) {
+    guestsCount.dispatchEvent(new Event('change'));
+  }
+
+  regenerateGuests();
+
+  if (formatSelectEl.value) {
+    formatSelectEl.dispatchEvent(new Event('change'));
+  }
+}
+
+
+function translateStaticTexts() {
+  const t = translations[currentLanguage];
+
+  document.getElementById('format-title').textContent = t.formatTitle;
+  document.getElementById('time-title').textContent = t.timeTitle;
+  document.getElementById('guests-title').textContent = t.guestsTitle;
+}
+function regenerateGuests() {
+  const guestBlocks = guestsDetails.querySelectorAll('.form-section');
+
+  guestBlocks.forEach((block, index) => {
+    // Заголовок гостя
+    const guestTitle = block.querySelector(`#guest${index + 1}-title`);
+    if (guestTitle) {
+      guestTitle.textContent = currentLanguage === 'ru' ? `Гость ${index + 1}` : `Guest ${index + 1}`;
+    }
+
+    // Лейбл выбора завтрака
+    const breakfastLabel = block.querySelector(`#breakfast${index + 1}-label`);
+    if (breakfastLabel) {
+      breakfastLabel.textContent = currentLanguage === 'ru' ? 'Выберите тип завтрака' : 'Select breakfast type';
+    }
+
+    // Селектор завтраков
+    const breakfastSelect = block.querySelector(`select[name="guest${index + 1}-breakfast"]`);
+    if (breakfastSelect) {
+      const selectedValue = breakfastSelect.value;
+      breakfastSelect.innerHTML = breakfastOptions.map(opt => 
+        `<option value="${opt.value}" ${opt.value === selectedValue ? 'selected' : ''}>
+          ${currentLanguage === 'ru' ? opt.ru : opt.en}
+        </option>`
+      ).join('');
+    }
+
+    // Описание завтрака
+    const breakfastDesc = block.querySelector(`#breakfast-desc${index + 1}`);
+    if (breakfastDesc && breakfastSelect) {
+      const description = breakfastDescriptions[breakfastSelect.value];
+      breakfastDesc.textContent = description
+        ? (currentLanguage === 'ru' ? description.ru : description.en)
+        : '';
+    }
+
+    // Дополнительные опции: каша, напиток, блюдо
+    const extraOptions = block.querySelector(`#extra-options-${index + 1}`);
+    if (extraOptions) {
+      const selects = extraOptions.querySelectorAll('select');
+      const labels = extraOptions.querySelectorAll('label');
+
+      labels.forEach(label => {
+        if (label.textContent.includes('кашу') || label.textContent.includes('porridge')) {
+          label.textContent = currentLanguage === 'ru' ? 'Выберите кашу' : 'Select porridge';
+        } else if (label.textContent.includes('напиток') || label.textContent.includes('drink')) {
+          label.textContent = currentLanguage === 'ru' ? 'Выберите напиток' : 'Select drink';
+        } else if (label.textContent.includes('блюдо') || label.textContent.includes('dish')) {
+          label.textContent = currentLanguage === 'ru' ? 'Выберите блюдо' : 'Select dish';
+        }
+      });
+
+      selects.forEach(select => {
+        if (select.name.includes('porridge')) {
+          const selectedValue = select.value;
+          select.innerHTML = porridges.map(p => 
+            `<option value="${p.value}" ${p.value === selectedValue ? 'selected' : ''}>
+              ${currentLanguage === 'ru' ? p.ru : p.en}
+            </option>`
+          ).join('');
+        }
+        if (select.name.includes('drink')) {
+          const selectedValue = select.value;
+          select.innerHTML = drinks.map(d => 
+            `<option value="${d.value}" ${d.value === selectedValue ? 'selected' : ''}>
+              ${currentLanguage === 'ru' ? d.ru : d.en}
+            </option>`
+          ).join('');
+        }
+        if (select.name.includes('dish')) {
+          const selectedValue = select.value;
+          select.innerHTML = turkishDishes.map(d => 
+            `<option value="${d.value}" ${d.value === selectedValue ? 'selected' : ''}>
+              ${currentLanguage === 'ru' ? d.ru : d.en}
+            </option>`
+          ).join('');
+        }
+      });
+    }
+
+    // Дополнительно (checkboxes)
+    const extrasSection = block.querySelector(`#extras-${index + 1}`);
+    if (extrasSection) {
+      extrasSection.innerHTML = '';
+      const extrasTitle = document.createElement('label');
+      extrasTitle.textContent = currentLanguage === 'ru' ? 'Дополнительно:' : 'Additionally:';
+      extrasSection.appendChild(extrasTitle);
+
+      extras.forEach(extra => {
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.style.display = 'block';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = `guest${index + 1}-extras`;
+        checkbox.value = extra.value;
+        checkbox.checked = Array.from(block.querySelectorAll(`input[name="guest${index + 1}-extras"]`))
+          .some(c => c.value === extra.value && c.checked);
+        checkboxLabel.appendChild(checkbox);
+        checkboxLabel.append(` ${currentLanguage === 'ru' ? extra.ru : extra.en}`);
+        extrasSection.appendChild(checkboxLabel);
+      });
+    }
+  });
+}
+
+// Кнопки переключения языка
+ruBtn.addEventListener('click', () => {
+  currentLanguage = 'ru';
+  updateTexts();
+});
+
+enBtn.addEventListener('click', () => {
+  currentLanguage = 'en';
+  updateTexts();
+});
+// Генерация блоков гостей
+guestsCount.addEventListener('change', () => {
+  guestsDetails.innerHTML = '';
+  const count = parseInt(guestsCount.value, 10);
+
+  if (!isNaN(count)) {
+    for (let i = 1; i <= count; i++) {
+      const guestBlock = document.createElement('div');
+      guestBlock.className = 'form-section';
+
+      guestBlock.innerHTML = `
+        <h3 id="guest${i}-title">${currentLanguage === 'ru' ? `Гость ${i}` : `Guest ${i}`}</h3>
+        <label id="breakfast${i}-label" for="breakfast${i}">${currentLanguage === 'ru' ? 'Выберите тип завтрака' : 'Select breakfast type'}</label>
+        <select id="breakfast${i}" name="guest${i}-breakfast" required>
+          ${breakfastOptions.map(opt => `<option value="${opt.value}">${currentLanguage === 'ru' ? opt.ru : opt.en}</option>`).join('')}
+        </select>
+        <div id="breakfast-desc${i}" class="breakfast-description"></div>
+        <div id="extra-options-${i}"></div>
+        <div id="extras-${i}" class="extras-section"></div>
+      `;
+
+      guestsDetails.appendChild(guestBlock);
+updateTurkishBreakfastAvailability();
+
+      const breakfastSelect = document.getElementById(`breakfast${i}`);
+      const breakfastDesc = document.getElementById(`breakfast-desc${i}`);
+      const extraOptions = document.getElementById(`extra-options-${i}`);
+      const extrasDiv = document.getElementById(`extras-${i}`);
+
+      function renderExtras() {
+        extrasDiv.innerHTML = '';
+        const extrasTitle = document.createElement('label');
+        extrasTitle.textContent = currentLanguage === 'ru' ? 'Дополнительно:' : 'Additionally:';
+        extrasDiv.appendChild(extrasTitle);
+
+        extras.forEach(extra => {
+          const checkboxLabel = document.createElement('label');
+          checkboxLabel.style.display = 'block';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.name = `guest${i}-extras`;
+          checkbox.value = extra.value;
+          checkboxLabel.appendChild(checkbox);
+          checkboxLabel.append(` ${currentLanguage === 'ru' ? extra.ru : extra.en}`);
+          extrasDiv.appendChild(checkboxLabel);
+        });
+      }
+
+      breakfastSelect.addEventListener('change', () => {
+        const description = breakfastDescriptions[breakfastSelect.value];
+        breakfastDesc.textContent = description ? (currentLanguage === 'ru' ? description.ru : description.en) : '';
+
+        extraOptions.innerHTML = '';
+
+        if (['hearty', 'sweet', 'assorted'].includes(breakfastSelect.value)) {
+          const porridgeLabel = document.createElement('label');
+          porridgeLabel.textContent = currentLanguage === 'ru' ? 'Выберите кашу' : 'Select porridge';
+          const porridgeSelect = document.createElement('select');
+          porridgeSelect.name = `guest${i}-porridge`;
+          porridges.forEach(porridge => {
+            const option = document.createElement('option');
+            option.value = porridge.value;
+            option.textContent = currentLanguage === 'ru' ? porridge.ru : porridge.en;
+            porridgeSelect.appendChild(option);
+          });
+          extraOptions.appendChild(porridgeLabel);
+          extraOptions.appendChild(porridgeSelect);
+
+          const drinkLabel = document.createElement('label');
+          drinkLabel.textContent = currentLanguage === 'ru' ? 'Выберите напиток' : 'Select drink';
+          const drinkSelect = document.createElement('select');
+          drinkSelect.name = `guest${i}-drink`;
+          drinks.forEach(drink => {
+            const option = document.createElement('option');
+            option.value = drink.value;
+            option.textContent = currentLanguage === 'ru' ? drink.ru : drink.en;
+            drinkSelect.appendChild(option);
+          });
+          extraOptions.appendChild(drinkLabel);
+          extraOptions.appendChild(drinkSelect);
+        }
+
+        if (breakfastSelect.value === 'turkish') {
+          const dishLabel = document.createElement('label');
+          dishLabel.textContent = currentLanguage === 'ru' ? 'Выберите блюдо' : 'Select dish';
+          const dishSelect = document.createElement('select');
+          dishSelect.name = `guest${i}-dish`;
+          turkishDishes.forEach(dish => {
+            const option = document.createElement('option');
+            option.value = dish.value;
+            option.textContent = currentLanguage === 'ru' ? dish.ru : dish.en;
+            dishSelect.appendChild(option);
+          });
+          extraOptions.appendChild(dishLabel);
+          extraOptions.appendChild(dishSelect);
+
+          const teaInfo = document.createElement('p');
+          teaInfo.style.marginTop = '0.5rem';
+          teaInfo.style.fontSize = '0.9rem';
+          teaInfo.textContent = currentLanguage === 'ru'
+            ? 'К турецкому завтраку автоматически включен чайник турецкого чая.'
+            : 'A pot of Turkish tea is automatically included with the Turkish breakfast.';
+          extraOptions.appendChild(teaInfo);
+        }
+
+        renderExtras();
+      });
+
+      breakfastSelect.dispatchEvent(new Event('change'));
+updateTurkishBreakfastAvailability();
+
+    }
+  }
+});
+function updateTurkishBreakfastAvailability() {
+  const breakfastSelects = guestsDetails.querySelectorAll('select[name^="guest"][name$="-breakfast"]');
+  breakfastSelects.forEach(select => {
+    const turkishOption = select.querySelector('option[value="turkish"]');
+    if (turkishOption) {
+      if (formatSelectEl.value === 'lunchbox') {
+        turkishOption.disabled = true;
+        turkishOption.style.color = '#999';
+        turkishOption.title = currentLanguage === 'ru'
+          ? 'Турецкий завтрак доступен только в ресторане'
+          : 'Turkish breakfast is only available at the restaurant';
+      } else {
+        turkishOption.disabled = false;
+        turkishOption.style.color = '';
+        turkishOption.title = '';
+      }
+    }
+  });
+}
+// Обработчик выбора формата подачи
+formatSelectEl.addEventListener('change', () => {
+  const now = new Date();
+  const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
+  const currentTime = currentHours * 60 + currentMinutes;
+  const cutoffTime = 20 * 60; // 20:00 в минутах
+
+  timeSelect.innerHTML = ''; // очищаем старые опции
+
+  if (formatSelectEl.value === 'restaurant') {
+    formatInfoEl.textContent = currentLanguage === 'ru'
+      ? 'Ресторан находится рядом с основным ресепшеном. Отдельный вход налево от выхода.'
+      : 'The restaurant is located next to the main reception. Separate entrance to the left.';
+    timeSection.style.display = 'block';
+
+    const restaurantTimes = ['9:30-10:00', '10:00-10:30', '10:30-11:00', '11:00-11:30'];
+    restaurantTimes.forEach(time => {
+      const option = document.createElement('option');
+      option.value = time;
+      option.textContent = time;
+      timeSelect.appendChild(option);
+    });
+updateTurkishBreakfastAvailability();
+  } else if (formatSelectEl.value === 'lunchbox') {
+    if (currentTime > cutoffTime) {
+      formatInfoEl.textContent = currentLanguage === 'ru'
+        ? 'Сейчас нельзя заказать ланчбокс. Уточните на ресепшене.'
+        : 'Lunchbox orders are no longer available today. Please ask at the reception.';
+      timeSection.style.display = 'none';
+    } else {
+      formatInfoEl.textContent = currentLanguage === 'ru'
+        ? 'Ланчбокс нужно будет забрать вечером на ресепшене.'
+        : 'The lunchbox should be picked up at the reception in the evening.';
+      timeSection.style.display = 'block';
+
+      const lunchboxTimes = ['20:00-20:30', '20:30-21:00', '21:00-21:30'];
+      lunchboxTimes.forEach(time => {
+        const option = document.createElement('option');
+        option.value = time;
+        option.textContent = time;
+        timeSelect.appendChild(option);
+      });
+updateTurkishBreakfastAvailability();
+    }
+  } else {
+    formatInfoEl.textContent = '';
+    timeSection.style.display = 'none';
+  }
+});
+
+// Обработка отправки формы
+document.getElementById('breakfast-form').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  let orderSummary = `${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}\n\n`;
+
+  const apartment = apartmentNumber.value.trim();
+  const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
+  const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
+  const comments = commentsField.value.trim();
+
+  if (!apartment || !format || !time) {
+    alert(currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.');
+    return;
+  }
+
+  orderSummary += `${currentLanguage === 'ru' ? 'Апартамент' : 'Apartment'}: ${apartment}\n`;
+  orderSummary += `${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}: ${format}\n`;
+  orderSummary += `${currentLanguage === 'ru' ? 'Время подачи' : 'Serving time'}: ${time}\n\n`;
+
+  const guestBlocks = guestsDetails.querySelectorAll('.form-section');
+  guestBlocks.forEach((block, index) => {
+    const breakfast = block.querySelector(`select[name="guest${index + 1}-breakfast"]`)?.selectedOptions[0]?.textContent || '';
+    orderSummary += `${currentLanguage === 'ru' ? 'Гость' : 'Guest'} ${index + 1}: ${breakfast}\n`;
+
+    const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
+    if (porridge) {
+      orderSummary += `- ${currentLanguage === 'ru' ? 'Каша' : 'Porridge'}: ${porridge.selectedOptions[0].textContent}\n`;
+    }
+
+    const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
+    if (drink) {
+      orderSummary += `- ${currentLanguage === 'ru' ? 'Напиток' : 'Drink'}: ${drink.selectedOptions[0].textContent}\n`;
+    }
+
+    const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
+    if (dish) {
+      orderSummary += `- ${currentLanguage === 'ru' ? 'Блюдо' : 'Dish'}: ${dish.selectedOptions[0].textContent}\n`;
+    }
+
+    const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
+    if (extras.length > 0) {
+      orderSummary += `- ${currentLanguage === 'ru' ? 'Дополнительно' : 'Extras'}: `;
+      orderSummary += Array.from(extras).map(extra => extra.nextSibling.textContent.trim()).join(', ');
+      orderSummary += '\n';
+    }
+    orderSummary += '\n';
+  });
+
+  if (comments) {
+    orderSummary += `${currentLanguage === 'ru' ? 'Комментарии' : 'Comments'}: ${comments}\n\n`;
+  }
+
+  // Подтверждение заказа
+  if (confirm(orderSummary + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'))) {
+    alert(currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!');
+resetFormAfterSubmit();
+    // Здесь будет код отправки данных в Google Таблицу и Telegram
+  }
+});
+function resetFormAfterSubmit() {
+  apartmentNumber.value = '';
+  formatSelectEl.selectedIndex = 0;
+  timeSelect.innerHTML = '';
+  timeSection.style.display = 'none';
+  formatInfoEl.textContent = '';
+  guestsCount.selectedIndex = 0;
+  guestsDetails.innerHTML = '';
+  commentsField.value = '';
+}
+
+</script>
+</body>
+</html>
