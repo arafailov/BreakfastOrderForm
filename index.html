@@ -32,12 +32,13 @@
 }
 
     /* Базовые стили */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Circe', sans-serif;
-      color: #262d36;
-    }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Circe', sans-serif;
+  background-color: #ffffff;
+  color: #262d36;
+}
 
     header {
       display: flex;
@@ -160,21 +161,83 @@
       border-color: #c49a5f;
       box-shadow: 0 0 0 3px rgba(196, 154, 95, 0.3);
     }
+    header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+}
+
+.rbi-logo-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.rbi-logo {
+  width: 80px;
+  opacity: 0.6;
+}
+
+.main-logo img {
+  max-width: 240px;
+  margin-bottom: 2rem;
+}
+
+.language-toggle {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.language-toggle button {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #c49a5f;
+  background-color: #ffffff;
+  color: #c49a5f;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.language-toggle button:hover {
+  background-color: #c49a5f;
+  color: #ffffff;
+}
+
+h1#form-title {
+  font-size: 2rem;
+  font-weight: 400;
+  text-align: center;
+  margin-top: 1rem;
+  color: #262d36;
+}
   </style>
 </head>
 
 <body>
 
-  <header>
-    <img src="ARTSTUDIO%20Nevsky%20лого.png" alt="Логотип ARTSTUDIO Nevsky">
-    <img src="RBI%20PM%20лого.png" alt="Логотип RBI PM">
-    <h1 id="form-title">Заказ завтраков</h1>
+<header>
+  <div class="rbi-logo-container">
+    <img src="RBI%20PM%20лого.png" alt="Логотип RBI PM" class="rbi-logo">
+  </div>
 
-    <div class="language-toggle">
-      <button id="ru-btn">Русский</button>
-      <button id="en-btn">English</button>
-    </div>
-  </header>
+  <div class="main-logo">
+    <img src="ARTSTUDIO%20Nevsky%20лого.png" alt="Логотип ARTSTUDIO Nevsky">
+  </div>
+
+  <div class="language-toggle">
+    <button id="ru-btn">Русский</button>
+    <button id="en-btn">English</button>
+  </div>
+
+  <h1 id="form-title">Заказ завтраков</h1>
+</header>
 
   <main>
     <form id="breakfast-form">
