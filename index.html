@@ -1,5 +1,3 @@
-Куда конкретно нужно и что прописать, чтобы было красивое окно?
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -823,7 +821,7 @@ formatSelectEl.addEventListener('change', () => {
 
   timeSelect.innerHTML = ''; // очищаем старые опции
 
-  if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
+if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
   showModal(
     currentLanguage === 'ru'
       ? 'Ланчбокс можно заказать только до 20:00 по московскому времени. Подача будет организована в ресторане.'
