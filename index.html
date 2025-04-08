@@ -404,24 +404,6 @@ const dateSelect = document.getElementById('date-select');
 const otherDateInput = document.getElementById('other-date');
 const dateInfo = document.getElementById('date-info');
 const formatSection = document.getElementById('format-section');
-formatSection.insertAdjacentElement('afterend', dateSection);
-// Блок для выбора даты подачи
-const dateSection = document.createElement('div');
-dateSection.className = 'form-section';
-dateSection.id = 'date-section';
-dateSection.style.display = 'none';
-dateSection.innerHTML = `
-  <h2 id="date-title">${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}</h2>
-  <select id="date-select" name="date-select" required>
-    <option value="">${currentLanguage === 'ru' ? 'Выберите дату подачи' : 'Select serving date'}</option>
-    <option value="today">${currentLanguage === 'ru' ? 'Сегодня' : 'Today'}</option>
-    <option value="tomorrow">${currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow'}</option>
-    <option value="other">${currentLanguage === 'ru' ? 'Другой день' : 'Other day'}</option>
-  </select>
-  <input type="date" id="other-date" style="display:none; margin-top: 1rem; padding: 0.75rem; width: 100%;" />
-  <p id="date-info" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></p>
-`;
-
 
 const breakfastOptions = [
   { value: 'hearty', ru: 'Сытный завтрак – 850₽', en: 'Hearty breakfast – 850₽' },
