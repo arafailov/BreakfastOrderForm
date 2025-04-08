@@ -1,3 +1,5 @@
+Куда конкретно нужно и что прописать, чтобы было красивое окно?
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -354,63 +356,20 @@ h1#form-title {
 </div>
 <script>
 
-function showModal(message, callback, options = null) {
+  function showModal(message, callback) {
   const overlay = document.getElementById('modal-overlay');
-  const modalWindow = document.getElementById('modal-window');
   const modalMessage = document.getElementById('modal-message');
   const modalOkButton = document.getElementById('modal-ok-button');
 
-  modalMessage.innerHTML = message;
+  modalMessage.textContent = message;
   overlay.style.display = 'flex';
 
-  // Очищаем предыдущие кнопки
-  modalOkButton.style.display = 'none';
-  const oldOptions = modalWindow.querySelectorAll('.modal-option-button');
-  oldOptions.forEach(btn => btn.remove());
-
-  if (options) {
-    options.forEach(({ text, value }) => {
-      const optionButton = document.createElement('button');
-      optionButton.textContent = text;
-      optionButton.className = 'modal-option-button';
-      optionButton.style.padding = '0.75rem 2rem';
-      optionButton.style.margin = '0.5rem';
-      optionButton.style.backgroundColor = '#c49a5f';
-      optionButton.style.color = '#fff';
-      optionButton.style.border = 'none';
-      optionButton.style.borderRadius = '2rem';
-      optionButton.style.fontWeight = '600';
-      optionButton.style.fontSize = '1rem';
-      optionButton.style.cursor = 'pointer';
-      optionButton.style.fontFamily = "'Circe', sans-serif";
-      optionButton.style.transition = 'background-color 0.3s ease';
-
-      optionButton.addEventListener('mouseover', () => {
-        optionButton.style.backgroundColor = '#a47f48';
-      });
-      optionButton.addEventListener('mouseout', () => {
-        optionButton.style.backgroundColor = '#c49a5f';
-      });
-
-      optionButton.onclick = () => {
-        overlay.style.display = 'none';
-        if (callback) callback(value);
-      };
-
-      modalWindow.appendChild(optionButton);
-    });
-  } else {
-    modalOkButton.style.display = 'inline-block';
-    modalOkButton.onclick = () => {
-      overlay.style.display = 'none';
-      if (callback) callback();
-    };
-  }
+  modalOkButton.onclick = () => {
+    overlay.style.display = 'none';
+    if (callback) callback();
+  };
 }
 
-
-let selectedDateForOrder = null;
-  
 let currentLanguage = 'ru';
 
 const ruBtn = document.getElementById('ru-btn');
@@ -855,10 +814,16 @@ function updateTurkishBreakfastAvailability() {
 }
 // Обработчик выбора формата подачи
 formatSelectEl.addEventListener('change', () => {
+  const now = new Date();
+  const utcHours = now.getUTCHours();
+  const moscowHours = (utcHours + 3) % 24;
+  const moscowMinutes = now.getUTCMinutes();
+  const currentTime = moscowHours * 60 + moscowMinutes;
+  const cutoffTime = 20 * 60; // 20:00 по московскому времени
 
   timeSelect.innerHTML = ''; // очищаем старые опции
 
-if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
+  if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
   showModal(
     currentLanguage === 'ru'
       ? 'Ланчбокс можно заказать только до 20:00 по московскому времени. Подача будет организована в ресторане.'
@@ -933,38 +898,6 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   return;
 }
 
-  const now = new Date();
-const utcHours = now.getUTCHours();
-const moscowHours = (utcHours + 3) % 24;
-const moscowMinutes = now.getUTCMinutes();
-const currentTime = moscowHours * 60 + moscowMinutes;
-const cutoffTime = 20 * 60;
-
-// Проверка: нужно ли уточнение даты
-if (currentTime >= 0 && currentTime <= 1350 && selectedDateForOrder === null) { // 22:30 = 690 минут
-  const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
-
-  const todayStr = today.toLocaleDateString('ru-RU');
-  const tomorrowStr = tomorrow.toLocaleDateString('ru-RU');
-
-  showModal(
-    currentLanguage === 'ru'
-      ? `На какой день оформить завтрак?<br><b>Сегодня (${todayStr})</b> или <b>Завтра (${tomorrowStr})</b>?`
-      : `For which day would you like to order breakfast?<br><b>Today (${todayStr})</b> or <b>Tomorrow (${tomorrowStr})</b>?`,
-    (choice) => {
-      selectedDateForOrder = choice;
-      document.getElementById('breakfast-form').dispatchEvent(new Event('submit')); // Переотправка формы
-    },
-    [
-      { text: currentLanguage === 'ru' ? `Сегодня (${todayStr})` : `Today (${todayStr})`, value: todayStr },
-      { text: currentLanguage === 'ru' ? `Завтра (${tomorrowStr})` : `Tomorrow (${tomorrowStr})`, value: tomorrowStr }
-    ]
-  );
-  return; // Останавливаем дальше до выбора
-}
-
 
   let orderSummary = `${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}\n\n`;
 
@@ -1031,8 +964,6 @@ function resetFormAfterSubmit() {
   guestsCount.selectedIndex = 0;
   guestsDetails.innerHTML = '';
   commentsField.value = '';
-  selectedDateForOrder = null; // СБРОС
-
 }
 
 </script>
