@@ -307,6 +307,19 @@ h1#form-title {
         <input type="text" id="apartment-number" name="apartment-number" placeholder="Введите номер апартамента" required>
       </div>
 
+      <div class="form-section" id="date-section" style="display: none;">
+        <h2 id="date-title">Дата подачи</h2>
+        <select id="date-select" name="date-select" required>
+          <option value="">Выберите дату подачи</option>
+          <option value="today">Сегодня</option>
+          <option value="tomorrow">Завтра</option>
+          <option value="other">Другой день</option>
+        </select>
+        <input type="date" id="other-date" style="display:none; margin-top: 1rem; padding: 0.75rem; width: 100%;" />
+        <p id="date-info" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></p>
+      </div>
+
+
       <div class="form-section" id="format-section">
         <h2 id="format-title">Формат подачи</h2>
         <select id="format-select" name="format-select" required>
@@ -386,6 +399,29 @@ const guestsDetails = document.getElementById('guests-details');
 const commentsTitle = document.getElementById('comments-title');
 const commentsField = document.getElementById('comments');
 const submitButton = document.getElementById('submit-button');
+  // Элементы выбора даты подачи
+const dateSelect = document.getElementById('date-select');
+const otherDateInput = document.getElementById('other-date');
+const dateInfo = document.getElementById('date-info');
+const formatSection = document.getElementById('format-section');
+formatSection.insertAdjacentElement('afterend', dateSection);
+// Блок для выбора даты подачи
+const dateSection = document.createElement('div');
+dateSection.className = 'form-section';
+dateSection.id = 'date-section';
+dateSection.style.display = 'none';
+dateSection.innerHTML = `
+  <h2 id="date-title">${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}</h2>
+  <select id="date-select" name="date-select" required>
+    <option value="">${currentLanguage === 'ru' ? 'Выберите дату подачи' : 'Select serving date'}</option>
+    <option value="today">${currentLanguage === 'ru' ? 'Сегодня' : 'Today'}</option>
+    <option value="tomorrow">${currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow'}</option>
+    <option value="other">${currentLanguage === 'ru' ? 'Другой день' : 'Other day'}</option>
+  </select>
+  <input type="date" id="other-date" style="display:none; margin-top: 1rem; padding: 0.75rem; width: 100%;" />
+  <p id="date-info" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></p>
+`;
+
 
 const breakfastOptions = [
   { value: 'hearty', ru: 'Сытный завтрак – 850₽', en: 'Hearty breakfast – 850₽' },
@@ -513,6 +549,22 @@ document.getElementById('comments-title').textContent = t.commentsTitle;
     updateLunchboxAvailability();
 
   }
+}
+updateTexts = (function (oldFunc) {
+  return function () {
+    oldFunc();
+    updateDateTexts();
+  };
+})(updateTexts);
+
+  
+  // Обновлять текстовые элементы при смене языка
+function updateDateTexts() {
+  document.getElementById('date-title').textContent = currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date';
+  dateSelect.options[0].textContent = currentLanguage === 'ru' ? 'Выберите дату подачи' : 'Select serving date';
+  dateSelect.options[1].textContent = currentLanguage === 'ru' ? 'Сегодня' : 'Today';
+  dateSelect.options[2].textContent = currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow';
+  dateSelect.options[3].textContent = currentLanguage === 'ru' ? 'Другой день' : 'Other day';
 }
 
 
@@ -642,6 +694,16 @@ enBtn.addEventListener('click', () => {
   currentLanguage = 'en';
   updateTexts();
 });
+
+  // При выборе "Другой день" показываем календарь
+dateSelect.addEventListener('change', () => {
+  if (dateSelect.value === 'other') {
+    otherDateInput.style.display = 'block';
+  } else {
+    otherDateInput.style.display = 'none';
+  }
+});
+  
 // Генерация блоков гостей
 guestsCount.addEventListener('change', () => {
   guestsDetails.innerHTML = '';
@@ -812,6 +874,36 @@ function updateTurkishBreakfastAvailability() {
     }
   });
 }
+
+// Функция проверки времени для блокировки "Сегодня" в ресторане
+function checkTodayAvailability() {
+  const now = new Date();
+  const moscowHours = (now.getUTCHours() + 3) % 24;
+  const moscowMinutes = now.getUTCMinutes();
+  const currentTime = moscowHours * 60 + moscowMinutes;
+  const restaurantCutoff = 11 * 60 + 30; // 11:30 по Москве
+
+  const todayOption = dateSelect.querySelector('option[value="today"]');
+
+  if (formatSelectEl.value === 'restaurant') {
+    if (currentTime >= restaurantCutoff) {
+      todayOption.disabled = true;
+      if (dateSelect.value === 'today') {
+        dateSelect.value = 'tomorrow';
+      }
+      dateInfo.textContent = currentLanguage === 'ru'
+        ? 'Ресторан открыт на завтраки с 9:30 до 11:30. Заказ на сегодня недоступен.'
+        : 'The restaurant is open for breakfasts from 9:30 to 11:30. Today\'s order is not available.';
+    } else {
+      todayOption.disabled = false;
+      dateInfo.textContent = '';
+    }
+  } else {
+    todayOption.disabled = false;
+    dateInfo.textContent = '';
+  }
+}
+  
 // Обработчик выбора формата подачи
 formatSelectEl.addEventListener('change', () => {
   const now = new Date();
@@ -821,6 +913,20 @@ formatSelectEl.addEventListener('change', () => {
   const currentTime = moscowHours * 60 + moscowMinutes;
   const cutoffTime = 20 * 60; // 20:00 по московскому времени
 
+    // === Новый код для даты ===
+  dateSection.style.display = formatSelectEl.value ? 'block' : 'none';
+
+  if (formatSelectEl.value === 'restaurant') {
+    dateSelect.value = 'tomorrow';
+    otherDateInput.style.display = 'none';
+  }
+  if (formatSelectEl.value === 'lunchbox') {
+    dateSelect.value = 'today';
+    otherDateInput.style.display = 'none';
+  }
+
+  checkTodayAvailability();
+  
   timeSelect.innerHTML = ''; // очищаем старые опции
 
   if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
