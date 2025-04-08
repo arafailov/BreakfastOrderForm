@@ -181,13 +181,21 @@ body {
 
 .main-logo img {
   max-width: 320px;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Для мобильных */
+@media (max-width: 600px) {
+  .main-logo img {
+    max-width: 200px;
+  }
 }
 
 .language-toggle {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+  margin-bottom: 3rem; /* Увеличенный отступ после языков */
 }
 
 .language-toggle button {
@@ -202,6 +210,7 @@ body {
   transition: all 0.3s ease;
 }
 
+/* При наведении */
 .language-toggle button:hover {
   background-color: #c49a5f;
   color: #ffffff;
