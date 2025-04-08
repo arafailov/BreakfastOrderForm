@@ -151,6 +151,40 @@
       font-size: 0.95rem;
       color: #555;
     }
+    select {
+  -webkit-appearance: none; /* Для Safari */
+  -moz-appearance: none;    /* Для Firefox */
+  appearance: none;         /* Для остальных */
+
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-family: 'Circe', sans-serif;
+  font-size: 1rem;
+  color: #262d36;
+
+  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg"%3E%3Cpolygon points="70,100 15,40 125,40" fill="%23666"%3E%3C/polygon%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.65rem auto;
+}
+
+/* Дополнительный стиль для фокуса */
+select:focus {
+  outline: none;
+  border-color: #c49a5f; /* цвет обводки при нажатии */
+  box-shadow: 0 0 0 3px rgba(196, 154, 95, 0.3); /* лёгкая подсветка */
+}
+
+/* Адаптация под мобильные экраны */
+@media (max-width: 600px) {
+  select {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+}
+
   </style>
 </head>
 <body>
