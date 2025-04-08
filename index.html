@@ -739,13 +739,24 @@ function updateTurkishBreakfastAvailability() {
 }
 // Обработчик выбора формата подачи
 formatSelectEl.addEventListener('change', () => {
-  const now = new Date();
-  const currentHours = now.getHours();
-  const currentMinutes = now.getMinutes();
-  const currentTime = currentHours * 60 + currentMinutes;
-  const cutoffTime = 20 * 60; // 20:00 в минутах
+ const now = new Date();
+  const utcHours = now.getUTCHours();
+  const moscowHours = (utcHours + 3) % 24;
+  const moscowMinutes = now.getUTCMinutes();
+  const currentTime = moscowHours * 60 + moscowMinutes;
 
   timeSelect.innerHTML = ''; // очищаем старые опции
+
+  if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
+  alert(currentLanguage === 'ru'
+    ? 'Заказ ланчбоксов возможен только до 20:00 по московскому времени. Пожалуйста, выберите другой формат подачи.'
+    : 'Lunchbox orders are available only until 8 PM Moscow time. Please select another serving format.');
+  
+  formatSelectEl.value = '';
+  formatInfoEl.textContent = '';
+  timeSection.style.display = 'none';
+  return; // остановить дальнейшую обработку
+}
 
   if (formatSelectEl.value === 'restaurant') {
     formatInfoEl.textContent = currentLanguage === 'ru'
@@ -791,6 +802,22 @@ updateTurkishBreakfastAvailability();
 // Обработка отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
+
+    // Проверяем актуальность выбора формата подачи
+  const now = new Date();
+  const utcHours = now.getUTCHours();
+  const moscowHours = (utcHours + 3) % 24;
+  const moscowMinutes = now.getUTCMinutes();
+  const currentTime = moscowHours * 60 + moscowMinutes;
+  const cutoffTime = 20 * 60;
+
+  if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
+    alert(currentLanguage === 'ru'
+      ? 'Заказ ланчбоксов возможен только до 20:00 по московскому времени. Пожалуйста, выберите другой формат подачи.'
+      : 'Lunchbox orders are available only until 8 PM Moscow time. Please select another serving format.');
+    return; // Останавливаем отправку формы
+  }
+
 
   let orderSummary = `${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}\n\n`;
 
