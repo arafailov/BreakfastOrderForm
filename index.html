@@ -855,12 +855,6 @@ function updateTurkishBreakfastAvailability() {
 }
 // Обработчик выбора формата подачи
 formatSelectEl.addEventListener('change', () => {
-  const now = new Date();
-  const utcHours = now.getUTCHours();
-  const moscowHours = (utcHours + 3) % 24;
-  const moscowMinutes = now.getUTCMinutes();
-  const currentTime = moscowHours * 60 + moscowMinutes;
-  const cutoffTime = 20 * 60; // 20:00 по московскому времени
 
   timeSelect.innerHTML = ''; // очищаем старые опции
 
