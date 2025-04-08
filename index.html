@@ -821,7 +821,7 @@ formatSelectEl.addEventListener('change', () => {
 
   timeSelect.innerHTML = ''; // очищаем старые опции
 
-  if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
+if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
   showModal(
     currentLanguage === 'ru'
       ? 'Ланчбокс можно заказать только до 20:00 по московскому времени. Подача будет организована в ресторане.'
@@ -831,10 +831,7 @@ formatSelectEl.addEventListener('change', () => {
       formatSelectEl.dispatchEvent(new Event('change')); // Перезапускаем обработчик выбора
     }
   );
-  formatSelectEl.value = '';
-  formatInfoEl.textContent = '';
-  timeSection.style.display = 'none';
-  return; // остановить дальнейшую обработку
+  return; // ВАЖНО: никаких других действий после показа модалки
 }
 
   if (formatSelectEl.value === 'restaurant') {
@@ -891,11 +888,13 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const cutoffTime = 20 * 60;
 
   if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
-    alert(currentLanguage === 'ru'
+  showModal(
+    currentLanguage === 'ru'
       ? 'Заказ ланчбоксов возможен только до 20:00 по московскому времени. Пожалуйста, выберите другой формат подачи.'
-      : 'Lunchbox orders are available only until 8 PM Moscow time. Please select another serving format.');
-    return; // Останавливаем отправку формы
-  }
+      : 'Lunchbox orders are available only until 8 PM Moscow time. Please select another serving format.'
+  );
+  return;
+}
 
 
   let orderSummary = `${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}\n\n`;
