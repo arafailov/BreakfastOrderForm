@@ -315,17 +315,17 @@ h1#form-title {
         <p id="format-info" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></p>
       </div>
       
-      <div class="form-section" id="date-section" style="display: none;">
-        <h2 id="date-title">Дата подачи</h2>
-        <select id="date-select" name="date-select">
-          <option value="today">Сегодня</option>
-          <option value="tomorrow">Завтра</option>
-          <option value="other">Другая дата</option>
-        </select>
-        <div id="custom-date-container" style="display: none; margin-top: 1rem;">
-          <input type="date" id="custom-date-input" name="custom-date-input">
-        </div>
-      </div>
+<div class="form-section" id="date-section" style="display: none;">
+  <h2 id="date-title">Дата подачи</h2>
+  <select id="date-select" name="date-select" required>
+    <option value="">Выберите дату</option>
+    <option value="today">Сегодня</option>
+    <option value="tomorrow">Завтра</option>
+    <option value="custom">Другой день</option>
+  </select>
+  <input type="date" id="custom-date-input" name="custom-date-input" style="display: none; margin-top: 1rem;">
+</div>
+
       
       <div class="form-section" id="time-section" style="display: none;">
         <h2 id="time-title">Время подачи</h2>
@@ -401,6 +401,16 @@ const dateSelect = document.getElementById('date-select');
 const customDateContainer = document.getElementById('custom-date-container');
 const customDateInput = document.getElementById('custom-date-input'); 
 
+  dateSelect.addEventListener('change', () => {
+  if (dateSelect.value === 'custom') {
+    customDateInput.style.display = 'block';
+    customDateInput.required = true;
+  } else {
+    customDateInput.style.display = 'none';
+    customDateInput.required = false;
+  }
+});
+  
 const breakfastOptions = [
   { value: 'hearty', ru: 'Сытный завтрак – 850₽', en: 'Hearty breakfast – 850₽' },
   { value: 'sweet', ru: 'Сладкий завтрак – 850₽', en: 'Sweet breakfast – 850₽' },
@@ -657,14 +667,6 @@ enBtn.addEventListener('click', () => {
   updateTexts();
 });
 
-  dateSelect.addEventListener('change', () => {
-  if (dateSelect.value === 'other') {
-    customDateContainer.style.display = 'block';
-  } else {
-    customDateContainer.style.display = 'none';
-  }
-});
-
 // Генерация блоков гостей
 guestsCount.addEventListener('change', () => {
   guestsDetails.innerHTML = '';
@@ -844,6 +846,8 @@ formatSelectEl.addEventListener('change', () => {
   const currentTime = moscowHours * 60 + moscowMinutes;
   const cutoffTime = 20 * 60; // 20:00 по московскому времени
 
+  
+
   timeSelect.innerHTML = ''; // очищаем старые опции
 
   const today = new Date();
@@ -854,6 +858,10 @@ formatSelectEl.addEventListener('change', () => {
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
   
   dateSection.style.display = 'block';
+dateSelect.value = '';
+customDateInput.style.display = 'none';
+customDateInput.value = '';
+
 
   if (formatSelectEl.value === 'restaurant') {
   dateSelect.value = 'tomorrow';
@@ -963,6 +971,33 @@ if (formatSelectEl.value === 'restaurant') {
 
   let orderSummary = `${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}\n\n`;
 
+  let selectedDateStr = '';
+
+if (dateSelect.value === 'today') {
+  const today = new Date();
+  selectedDateStr = today.toISOString().split('T')[0];
+} else if (dateSelect.value === 'tomorrow') {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  selectedDateStr = tomorrow.toISOString().split('T')[0];
+} else if (dateSelect.value === 'custom') {
+  selectedDateStr = customDateInput.value;
+}
+
+if (!selectedDateStr) {
+  showModal(currentLanguage === 'ru' ? 'Пожалуйста, выберите дату подачи.' : 'Please select a serving date.');
+  return;
+}
+
+// Проверка: если ресторан, выбрано "сегодня" и время после 11:30
+if (formatSelectEl.value === 'restaurant' && dateSelect.value === 'today' && currentTime > (11 * 60 + 30)) {
+  showModal(currentLanguage === 'ru'
+    ? 'Заказ завтрака в ресторане на сегодня невозможен после 11:30. Пожалуйста, выберите другую дату.'
+    : 'Breakfast at the restaurant cannot be ordered for today after 11:30. Please select another date.');
+  return;
+}
+
+  
   const apartment = apartmentNumber.value.trim();
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
@@ -1036,6 +1071,10 @@ function resetFormAfterSubmit() {
   guestsCount.selectedIndex = 0;
   guestsDetails.innerHTML = '';
   commentsField.value = '';
+    dateSelect.value = '';
+  customDateInput.value = '';
+  customDateInput.style.display = 'none';
+
 }
 
 </script>
