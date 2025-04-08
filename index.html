@@ -850,25 +850,67 @@ formatSelectEl.addEventListener('change', () => {
 
   timeSelect.innerHTML = ''; // очищаем старые опции
 
+  dateSection.style.display = 'block';
+  dateSelect.value = '';
+  customDateInput.style.display = 'none';
+  customDateInput.value = '';
+
+   if (formatSelectEl.value === 'restaurant') {
+    formatInfoEl.textContent = currentLanguage === 'ru'
+      ? 'Ресторан находится рядом с основным ресепшеном. Отдельный вход налево от выхода.'
+      : 'The restaurant is located next to the main reception. Separate entrance to the left.';
+    timeSection.style.display = 'block';
+
+    const restaurantTimes = ['9:30-10:00', '10:00-10:30', '10:30-11:00', '11:00-11:30'];
+    restaurantTimes.forEach(time => {
+      const option = document.createElement('option');
+      option.value = time;
+      option.textContent = time;
+      timeSelect.appendChild(option);
+    });
+     
+  updateTurkishBreakfastAvailability();
+    } else if (formatSelectEl.value === 'lunchbox') {
+    if (currentTime > cutoffTime) {
+      formatInfoEl.textContent = currentLanguage === 'ru'
+        ? 'Сейчас нельзя заказать ланчбокс. Уточните на ресепшене.'
+        : 'Lunchbox orders are no longer available today. Please ask at the reception.';
+      timeSection.style.display = 'none';
+    } else {
+      formatInfoEl.textContent = currentLanguage === 'ru'
+        ? 'Ланчбокс нужно будет забрать вечером на ресепшене.'
+        : 'The lunchbox should be picked up at the reception in the evening.';
+      timeSection.style.display = 'block';
+
+      const lunchboxTimes = ['20:00-20:30', '20:30-21:00', '21:00-21:30'];
+      lunchboxTimes.forEach(time => {
+        const option = document.createElement('option');
+        option.value = time;
+        option.textContent = time;
+        timeSelect.appendChild(option);
+      });
+      
+updateTurkishBreakfastAvailability();
+    }
+  } else {
+    formatInfoEl.textContent = '';
+    timeSection.style.display = 'none';
+  }
+});
+
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
   
   const todayStr = today.toISOString().split('T')[0];
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
-  
-  dateSection.style.display = 'block';
-dateSelect.value = '';
-customDateInput.style.display = 'none';
-customDateInput.value = '';
-
 
   if (formatSelectEl.value === 'restaurant') {
   dateSelect.value = 'tomorrow';
-} else if (formatSelectEl.value === 'lunchbox') {
+  } else if (formatSelectEl.value === 'lunchbox') {
   dateSelect.value = 'today';
-}
-customDateContainer.style.display = 'none';
+  }
+  customDateContainer.style.display = 'none';
 
   
   if (formatSelectEl.value === 'restaurant') {
@@ -890,47 +932,7 @@ customDateContainer.style.display = 'none';
       return; // ВАЖНО: никаких других действий после показа модалки
     }
 
-  if (formatSelectEl.value === 'restaurant') {
-    formatInfoEl.textContent = currentLanguage === 'ru'
-      ? 'Ресторан находится рядом с основным ресепшеном. Отдельный вход налево от выхода.'
-      : 'The restaurant is located next to the main reception. Separate entrance to the left.';
-    timeSection.style.display = 'block';
-
-    const restaurantTimes = ['9:30-10:00', '10:00-10:30', '10:30-11:00', '11:00-11:30'];
-    restaurantTimes.forEach(time => {
-      const option = document.createElement('option');
-      option.value = time;
-      option.textContent = time;
-      timeSelect.appendChild(option);
-    });
-updateTurkishBreakfastAvailability();
-  } else if (formatSelectEl.value === 'lunchbox') {
-    if (currentTime > cutoffTime) {
-      formatInfoEl.textContent = currentLanguage === 'ru'
-        ? 'Сейчас нельзя заказать ланчбокс. Уточните на ресепшене.'
-        : 'Lunchbox orders are no longer available today. Please ask at the reception.';
-      timeSection.style.display = 'none';
-    } else {
-      formatInfoEl.textContent = currentLanguage === 'ru'
-        ? 'Ланчбокс нужно будет забрать вечером на ресепшене.'
-        : 'The lunchbox should be picked up at the reception in the evening.';
-      timeSection.style.display = 'block';
-
-      const lunchboxTimes = ['20:00-20:30', '20:30-21:00', '21:00-21:30'];
-      lunchboxTimes.forEach(time => {
-        const option = document.createElement('option');
-        option.value = time;
-        option.textContent = time;
-        timeSelect.appendChild(option);
-      });
-updateTurkishBreakfastAvailability();
-    }
-  } else {
-    formatInfoEl.textContent = '';
-    timeSection.style.display = 'none';
-  }
-});
-
+ 
 // Обработка отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
