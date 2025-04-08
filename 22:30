@@ -947,7 +947,7 @@ const currentTime = moscowHours * 60 + moscowMinutes;
 const cutoffTime = 20 * 60;
 
 // Проверка: нужно ли уточнение даты
-if (currentTime >= 0 && currentTime <= 690 && selectedDateForOrder === null) { // 22:30 = 690 минут
+if (currentTime >= 0 && currentTime <= 1350 && selectedDateForOrder === null) { // 22:30 = 690 минут
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
