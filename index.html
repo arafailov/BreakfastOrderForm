@@ -6,46 +6,32 @@
   <title>Заказ завтраков | ARTSTUDIO Nevsky</title>
 
   <style>
-  @font-face {
-    font-family: 'Circe';
-    src: url('fonts/Circe-Light.woff2') format('woff2'),
-         url('fonts/Circe-Light.woff') format('woff');
-    font-weight: 300;
-    font-style: normal;
-  }
+    /* Подключение шрифта Circe */
+    @font-face {
+      font-family: 'Circe';
+      src: url('fonts/Circe-Light.woff2') format('woff2'),
+           url('fonts/Circe-Light.woff') format('woff');
+      font-weight: 300;
+      font-style: normal;
+    }
 
-  @font-face {
-    font-family: 'Circe';
-    src: url('fonts/Circe-Regular.woff2') format('woff2'),
-         url('fonts/Circe-Regular.woff') format('woff');
-    font-weight: 400;
-    font-style: normal;
-  }
+    @font-face {
+      font-family: 'Circe';
+      src: url('fonts/Circe-Regular.woff2') format('woff2'),
+           url('fonts/Circe-Regular.woff') format('woff');
+      font-weight: 400;
+      font-style: normal;
+    }
 
-  @font-face {
-    font-family: 'Circe';
-    src: url('fonts/Circe-Bold.woff2') format('woff2'),
-         url('fonts/Circe-Bold.woff') format('woff');
-    font-weight: 700;
-    font-style: normal;
-  }
-  select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    font-family: 'Circe', sans-serif;
-    font-size: 1rem;
-    color: #262d36;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path fill="%23666" d="M0 0l5 6 5-6z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 0.65rem auto;
-  }
-  <style>
+    @font-face {
+      font-family: 'Circe';
+      src: url('fonts/Circe-Bold.woff2') format('woff2'),
+           url('fonts/Circe-Bold.woff') format('woff');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    /* Базовые стили */
     body {
       margin: 0;
       padding: 0;
@@ -53,6 +39,7 @@
       background: #ffffff url('rbi-pm-pattern3.svg') repeat;
       color: #262d36;
     }
+
     header {
       display: flex;
       flex-direction: column;
@@ -150,42 +137,33 @@
       font-size: 0.95rem;
       color: #555;
     }
+
+    /* Стилизация SELECT */
     select {
-  -webkit-appearance: none; /* Для Safari */
-  -moz-appearance: none;    /* Для Firefox */
-  appearance: none;         /* Для остальных */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      font-family: 'Circe', sans-serif;
+      font-size: 1rem;
+      color: #262d36;
+      background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg"%3E%3Cpolygon points="70,100 15,40 125,40" fill="%23666"%3E%3C/polygon%3E%3C/svg%3E');
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 0.65rem auto;
+    }
 
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  font-family: 'Circe', sans-serif;
-  font-size: 1rem;
-  color: #262d36;
-
-  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg"%3E%3Cpolygon points="70,100 15,40 125,40" fill="%23666"%3E%3C/polygon%3E%3C/svg%3E');
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 0.65rem auto;
-}
-
-/* Дополнительный стиль для фокуса */
-select:focus {
-  outline: none;
-  border-color: #c49a5f; /* цвет обводки при нажатии */
-  box-shadow: 0 0 0 3px rgba(196, 154, 95, 0.3); /* лёгкая подсветка */
-}
-
-/* Адаптация под мобильные экраны */
-@media (max-width: 600px) {
-  select {
-    font-size: 1rem;
-    padding: 0.5rem;
-  }
-}
-
+    select:focus {
+      outline: none;
+      border-color: #c49a5f;
+      box-shadow: 0 0 0 3px rgba(196, 154, 95, 0.3);
+    }
   </style>
 </head>
+
 <body>
 
   <header>
