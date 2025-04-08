@@ -435,6 +435,8 @@ document.getElementById('comments-title').textContent = t.commentsTitle;
 
   if (formatSelectEl.value) {
     formatSelectEl.dispatchEvent(new Event('change'));
+    updateLunchboxAvailability();
+
   }
 }
 
@@ -549,7 +551,11 @@ function regenerateGuests() {
       });
     }
   });
+  
 }
+window.addEventListener('load', () => {
+  updateLunchboxAvailability();
+});
 
 // Кнопки переключения языка
 ruBtn.addEventListener('click', () => {
@@ -589,6 +595,39 @@ updateTurkishBreakfastAvailability();
       const breakfastDesc = document.getElementById(`breakfast-desc${i}`);
       const extraOptions = document.getElementById(`extra-options-${i}`);
       const extrasDiv = document.getElementById(`extras-${i}`);
+      function updateLunchboxAvailability() {
+  const now = new Date();
+  const currentHours = now.getHours();
+  const currentMinutes = now.getMinutes();
+  const currentTime = currentHours * 60 + currentMinutes;
+  const cutoffTime = 20 * 60; // 20:00
+
+  const lunchboxOption = formatSelectEl.querySelector('option[value="lunchbox"]');
+  
+  if (lunchboxOption) {
+    if (currentTime > cutoffTime) {
+      lunchboxOption.disabled = true;
+      lunchboxOption.style.color = '#999';
+      lunchboxOption.title = currentLanguage === 'ru'
+        ? 'Ланчбокс заказывается до 20:00. Пожалуйста, уточните на ресепшене.'
+        : 'Lunchbox orders must be placed before 8 PM. Please ask at the reception.';
+      
+      // Если "Ланчбокс" сейчас выбран — сбросить формат и очистить блок времени
+      if (formatSelectEl.value === 'lunchbox') {
+        formatSelectEl.value = '';
+        formatInfoEl.textContent = currentLanguage === 'ru'
+          ? 'Выберите формат подачи'
+          : 'Select serving format';
+        timeSection.style.display = 'none';
+      }
+    } else {
+      lunchboxOption.disabled = false;
+      lunchboxOption.style.color = '';
+      lunchboxOption.title = '';
+    }
+  }
+}
+
 
       function renderExtras() {
         extrasDiv.innerHTML = '';
