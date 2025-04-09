@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -315,6 +317,15 @@ h1#form-title {
         <p id="format-info" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></p>
       </div>
 
+      <div class="form-section" id="date-section" style="display: none;">
+        <h2 id="date-title">Дата подачи</h2>
+        <select id="date-select" name="date-select" required>
+          <option value="">Выберите дату подачи</option>
+          <option value="today">Сегодня</option>
+          <option value="tomorrow">Завтра</option>
+        </select>
+      </div>
+
       <div class="form-section" id="time-section" style="display: none;">
         <h2 id="time-title">Время подачи</h2>
         <select id="time-select" name="time-select" required></select>
@@ -384,6 +395,8 @@ const guestsDetails = document.getElementById('guests-details');
 const commentsTitle = document.getElementById('comments-title');
 const commentsField = document.getElementById('comments');
 const submitButton = document.getElementById('submit-button');
+const dateSection = document.getElementById('date-section');
+const dateSelect = document.getElementById('date-select');
 
 const breakfastOptions = [
   { value: 'hearty', ru: 'Сытный завтрак – 850₽', en: 'Hearty breakfast – 850₽' },
@@ -810,29 +823,38 @@ function updateTurkishBreakfastAvailability() {
     }
   });
 }
-// Обработчик выбора формата подачи
 formatSelectEl.addEventListener('change', () => {
   const now = new Date();
   const utcHours = now.getUTCHours();
   const moscowHours = (utcHours + 3) % 24;
   const moscowMinutes = now.getUTCMinutes();
   const currentTime = moscowHours * 60 + moscowMinutes;
-  const cutoffTime = 20 * 60; // 20:00 по московскому времени
+  const cutoffTime = 20 * 60; // 20:00 по Москве
 
   timeSelect.innerHTML = ''; // очищаем старые опции
 
+  dateSection.style.display = formatSelectEl.value ? 'block' : 'none';
+
+  if (formatSelectEl.value === 'restaurant') {
+    dateSelect.value = 'tomorrow';
+  } else if (formatSelectEl.value === 'lunchbox') {
+    dateSelect.value = 'today';
+  }
+
+  // === ВАЖНО: проверка на ланчбокс поздно вечером ===
   if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
-  showModal(
-    currentLanguage === 'ru'
-      ? 'Ланчбокс можно заказать только до 20:00 по московскому времени. Подача будет организована в ресторане.'
-      : 'Lunchbox orders are only available until 8 PM Moscow time. Serving will be arranged at the restaurant.',
-    () => {
-      formatSelectEl.value = 'restaurant';
-      formatSelectEl.dispatchEvent(new Event('change')); // Перезапускаем обработчик выбора
-    }
-  );
-  return; // ВАЖНО: никаких других действий после показа модалки
-}
+    showModal(
+      currentLanguage === 'ru'
+        ? 'Ланчбокс можно заказать только до 20:00 по московскому времени. Подача будет организована в ресторане.'
+        : 'Lunchbox orders are only available until 8 PM Moscow time. Serving will be arranged at the restaurant.',
+      () => {
+        formatSelectEl.value = 'restaurant';
+        formatSelectEl.dispatchEvent(new Event('change'));
+      }
+    );
+    return; // обязательно return после модалки
+  }
+  // === Конец проверки ===
 
   if (formatSelectEl.value === 'restaurant') {
     formatInfoEl.textContent = currentLanguage === 'ru'
@@ -847,33 +869,29 @@ formatSelectEl.addEventListener('change', () => {
       option.textContent = time;
       timeSelect.appendChild(option);
     });
-updateTurkishBreakfastAvailability();
-  } else if (formatSelectEl.value === 'lunchbox') {
-    if (currentTime > cutoffTime) {
-      formatInfoEl.textContent = currentLanguage === 'ru'
-        ? 'Сейчас нельзя заказать ланчбокс. Уточните на ресепшене.'
-        : 'Lunchbox orders are no longer available today. Please ask at the reception.';
-      timeSection.style.display = 'none';
-    } else {
-      formatInfoEl.textContent = currentLanguage === 'ru'
-        ? 'Ланчбокс нужно будет забрать вечером на ресепшене.'
-        : 'The lunchbox should be picked up at the reception in the evening.';
-      timeSection.style.display = 'block';
 
-      const lunchboxTimes = ['20:00-20:30', '20:30-21:00', '21:00-21:30'];
-      lunchboxTimes.forEach(time => {
-        const option = document.createElement('option');
-        option.value = time;
-        option.textContent = time;
-        timeSelect.appendChild(option);
-      });
-updateTurkishBreakfastAvailability();
-    }
+    updateTurkishBreakfastAvailability();
+  } else if (formatSelectEl.value === 'lunchbox') {
+    formatInfoEl.textContent = currentLanguage === 'ru'
+      ? 'Ланчбокс нужно будет забрать вечером на ресепшене.'
+      : 'The lunchbox should be picked up at the reception in the evening.';
+    timeSection.style.display = 'block';
+
+    const lunchboxTimes = ['20:00-20:30', '20:30-21:00', '21:00-21:30'];
+    lunchboxTimes.forEach(time => {
+      const option = document.createElement('option');
+      option.value = time;
+      option.textContent = time;
+      timeSelect.appendChild(option);
+    });
+
+    updateTurkishBreakfastAvailability();
   } else {
     formatInfoEl.textContent = '';
     timeSection.style.display = 'none';
   }
 });
+
 
 // Обработка отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
@@ -903,6 +921,9 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const comments = commentsField.value.trim();
+  const dateValue = dateSelect.value === 'today'
+  ? (currentLanguage === 'ru' ? 'Сегодня' : 'Today')
+  : (currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow');
 
   if (!apartment || !format || !time) {
     alert(currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.');
@@ -911,6 +932,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
 
   orderSummary += `${currentLanguage === 'ru' ? 'Апартамент' : 'Apartment'}: ${apartment}\n`;
   orderSummary += `${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}: ${format}\n`;
+  orderSummary += `${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}: ${dateValue}\n`;
   orderSummary += `${currentLanguage === 'ru' ? 'Время подачи' : 'Serving time'}: ${time}\n\n`;
 
   const guestBlocks = guestsDetails.querySelectorAll('.form-section');
