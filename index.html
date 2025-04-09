@@ -502,7 +502,11 @@ document.getElementById('comments-title').textContent = t.commentsTitle;
     formatSelectEl.options[1].textContent = t.formatRestaurant;
     formatSelectEl.options[2].textContent = t.formatLunchbox;
   }
-
+  if (dateSelect.options.length >= 3) {
+    dateSelect.options[0].textContent = currentLanguage === 'ru' ? 'Выберите дату подачи' : 'Select serving date';
+    dateSelect.options[1].textContent = currentLanguage === 'ru' ? 'Сегодня' : 'Today';
+    dateSelect.options[2].textContent = currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow';
+  }
   if (guestsCount.options.length > 0) {
     guestsCount.options[0].textContent = t.guestsPlaceholder;
   }
@@ -921,9 +925,14 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const comments = commentsField.value.trim();
-  const dateValue = dateSelect.value === 'today'
-  ? (currentLanguage === 'ru' ? 'Сегодня' : 'Today')
-  : (currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow');
+let selectedDate = new Date();
+if (dateSelect.value === 'tomorrow') {
+  selectedDate.setDate(selectedDate.getDate() + 1);
+}
+const day = String(selectedDate.getDate()).padStart(2, '0');
+const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+const year = String(selectedDate.getFullYear());
+const dateValue = `${day}.${month}.${year}`;
 
   if (!apartment || !format || !time) {
     alert(currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.');
