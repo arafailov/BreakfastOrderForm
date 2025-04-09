@@ -363,13 +363,19 @@ h1#form-title {
 </div>
 <script>
 
-  function showModal(message, callback) {
+function showModal(message, callback) {
   const overlay = document.getElementById('modal-overlay');
+  const modalWindow = document.getElementById('modal-window');
   const modalMessage = document.getElementById('modal-message');
   const modalOkButton = document.getElementById('modal-ok-button');
 
+  // Очищаем возможные дополнительные кнопки
+  const extraButtons = modalWindow.querySelector('.modal-extra-buttons');
+  if (extraButtons) extraButtons.remove();
+
   modalMessage.textContent = message;
   overlay.style.display = 'flex';
+  modalOkButton.style.display = 'inline-block';
 
   modalOkButton.onclick = () => {
     overlay.style.display = 'none';
@@ -383,11 +389,15 @@ function showConfirmModal(message, onConfirm, onCancel) {
   const modalMessage = document.getElementById('modal-message');
   const modalOkButton = document.getElementById('modal-ok-button');
 
-  // Убираем старую кнопку "Ок"
+  // Убираем кнопку "Ок"
   modalOkButton.style.display = 'none';
 
-  // Создаем новые кнопки "Да" и "Нет"
+  // Удаляем старые дополнительные кнопки (если они есть)
+  const oldExtraButtons = modalWindow.querySelector('.modal-extra-buttons');
+  if (oldExtraButtons) oldExtraButtons.remove();
+
   const confirmButtons = document.createElement('div');
+  confirmButtons.className = 'modal-extra-buttons';
   confirmButtons.style.display = 'flex';
   confirmButtons.style.justifyContent = 'center';
   confirmButtons.style.gap = '1rem';
@@ -403,7 +413,7 @@ function showConfirmModal(message, onConfirm, onCancel) {
   yesButton.style.fontWeight = '600';
   yesButton.style.fontSize = '1rem';
   yesButton.style.cursor = 'pointer';
-  
+
   const noButton = document.createElement('button');
   noButton.textContent = currentLanguage === 'ru' ? 'Нет' : 'No';
   noButton.style.padding = '0.75rem 2rem';
@@ -418,12 +428,10 @@ function showConfirmModal(message, onConfirm, onCancel) {
   confirmButtons.appendChild(yesButton);
   confirmButtons.appendChild(noButton);
 
-  // Добавляем текст и кнопки в модалку
   modalMessage.textContent = message;
   modalWindow.appendChild(confirmButtons);
   overlay.style.display = 'flex';
 
-  // Обработчики кнопок
   yesButton.onclick = () => {
     overlay.style.display = 'none';
     confirmButtons.remove();
@@ -438,6 +446,7 @@ function showConfirmModal(message, onConfirm, onCancel) {
     if (onCancel) onCancel();
   };
 }
+
 
   
 let currentLanguage = 'ru';
