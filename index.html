@@ -961,6 +961,16 @@ formatSelectEl.addEventListener('change', () => {
     timeSection.style.display = 'none';
   }
 });
+function resetFormAfterSubmit() {
+  apartmentNumber.value = '';
+  formatSelectEl.selectedIndex = 0;
+  timeSelect.innerHTML = '';
+  timeSection.style.display = 'none';
+  formatInfoEl.textContent = '';
+  guestsCount.selectedIndex = 0;
+  guestsDetails.innerHTML = '';
+  commentsField.value = '';
+}
 
 
 // Обработка отправки формы
@@ -1055,16 +1065,6 @@ showConfirmModal(
     // Ничего не делаем при отмене
   }
 );
-function resetFormAfterSubmit() {
-  apartmentNumber.value = '';
-  formatSelectEl.selectedIndex = 0;
-  timeSelect.innerHTML = '';
-  timeSection.style.display = 'none';
-  formatInfoEl.textContent = '';
-  guestsCount.selectedIndex = 0;
-  guestsDetails.innerHTML = '';
-  commentsField.value = '';
-}
 
 </script>
 </body>
