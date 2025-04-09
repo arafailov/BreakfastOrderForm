@@ -373,7 +373,7 @@ function showModal(message, callback) {
   const extraButtons = modalWindow.querySelector('.modal-extra-buttons');
   if (extraButtons) extraButtons.remove();
 
-  modalMessage.textContent = message;
+  modalMessage.innerHTML = message; // Изменено на innerHTML
   overlay.style.display = 'flex';
   modalOkButton.style.display = 'inline-block';
 
@@ -428,7 +428,7 @@ function showConfirmModal(message, onConfirm, onCancel) {
   confirmButtons.appendChild(yesButton);
   confirmButtons.appendChild(noButton);
 
-  modalMessage.textContent = message;
+  modalMessage.innerHTML = message; // Изменено на innerHTML
   modalWindow.appendChild(confirmButtons);
   overlay.style.display = 'flex';
 
@@ -529,6 +529,10 @@ const translations = {
     formatPlaceholder: 'Выберите формат подачи',
     formatRestaurant: 'В ресторане',
     formatLunchbox: 'Ланчбокс',
+    dateTitle: 'Дата подачи', // Добавлено
+    datePlaceholder: 'Выберите дату подачи', // Добавлено
+    dateToday: 'Сегодня', // Добавлено
+    dateTomorrow: 'Завтра', // Добавлено
     timeTitle: 'Время подачи',
     guestsTitle: 'Количество гостей',
     guestsPlaceholder: 'Выберите количество гостей',
@@ -544,6 +548,10 @@ const translations = {
     formatPlaceholder: 'Select serving format',
     formatRestaurant: 'At the restaurant',
     formatLunchbox: 'Lunchbox',
+    dateTitle: 'Serving date', // Добавлено
+    datePlaceholder: 'Select serving date', // Добавлено
+    dateToday: 'Today', // Добавлено
+    dateTomorrow: 'Tomorrow', // Добавлено
     timeTitle: 'Serving time',
     guestsTitle: 'Number of guests',
     guestsPlaceholder: 'Select number of guests',
@@ -553,6 +561,14 @@ const translations = {
   }
 };
 
+  // Функция для форматирования даты в дд.мм.гггг
+function formatDate(date) {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+}
+  
 // Обновление текстов при смене языка
 function updateTexts() {
   const t = translations[currentLanguage];
@@ -560,28 +576,34 @@ function updateTexts() {
   formTitle.textContent = t.formTitle;
   apartmentTitle.textContent = t.apartmentTitle;
   apartmentNumber.placeholder = t.apartmentPlaceholder;
-document.getElementById('format-title').textContent = t.formatTitle;
-document.getElementById('time-title').textContent = t.timeTitle;
-document.getElementById('guests-title').textContent = t.guestsTitle;
-document.getElementById('comments-title').textContent = t.commentsTitle;
+  document.getElementById('format-title').textContent = t.formatTitle;
+  document.getElementById('date-title').textContent = t.dateTitle; // Добавлено
+  document.getElementById('time-title').textContent = t.timeTitle;
+  document.getElementById('guests-title').textContent = t.guestsTitle;
+  document.getElementById('comments-title').textContent = t.commentsTitle;
 
-
-
+  // Обновление опций для формата подачи
   if (formatSelectEl.options.length >= 3) {
     formatSelectEl.options[0].textContent = t.formatPlaceholder;
     formatSelectEl.options[1].textContent = t.formatRestaurant;
     formatSelectEl.options[2].textContent = t.formatLunchbox;
   }
 
+  // Обновление опций для даты подачи
+  if (dateSelect.options.length >= 3) {
+    dateSelect.options[0].textContent = t.datePlaceholder;
+    dateSelect.options[1].textContent = t.dateToday;
+    dateSelect.options[2].textContent = t.dateTomorrow;
+  }
+
   if (guestsCount.options.length > 0) {
     guestsCount.options[0].textContent = t.guestsPlaceholder;
   }
 
-
   commentsField.placeholder = t.commentsPlaceholder;
   submitButton.textContent = t.submitButton;
 
-  translateStaticTexts(); 
+  translateStaticTexts();
 
   if (guestsCount.value) {
     guestsCount.dispatchEvent(new Event('change'));
@@ -592,7 +614,6 @@ document.getElementById('comments-title').textContent = t.commentsTitle;
   if (formatSelectEl.value) {
     formatSelectEl.dispatchEvent(new Event('change'));
     updateLunchboxAvailability();
-
   }
 }
 
@@ -973,11 +994,20 @@ function resetFormAfterSubmit() {
 }
 
 
+// Функция для экранирования HTML
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;')
+             .replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;')
+             .replace(/"/g, '&quot;')
+             .replace(/'/g, '&#039;');
+}
+
 // Обработка отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
-    // Проверяем актуальность выбора формата подачи
+  // Проверяем актуальность выбора формата подачи
   const now = new Date();
   const utcHours = now.getUTCHours();
   const moscowHours = (utcHours + 3) % 24;
@@ -986,86 +1016,96 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const cutoffTime = 20 * 60;
 
   if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
-  showModal(
-    currentLanguage === 'ru'
-      ? 'Заказ ланчбоксов возможен только до 20:00 по московскому времени. Пожалуйста, выберите другой формат подачи.'
-      : 'Lunchbox orders are available only until 8 PM Moscow time. Please select another serving format.'
-  );
-  return;
-}
-
-
-  let orderSummary = `${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}\n\n`;
+    showModal(
+      currentLanguage === 'ru'
+        ? 'Заказ ланчбоксов возможен только до 20:00 по московскому времени. Пожалуйста, выберите другой формат подачи.'
+        : 'Lunchbox orders are available only until 8 PM Moscow time. Please select another serving format.'
+    );
+    return;
+  }
 
   const apartment = apartmentNumber.value.trim();
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const comments = commentsField.value.trim();
-  const dateValue = dateSelect.value === 'today'
-  ? (currentLanguage === 'ru' ? 'Сегодня' : 'Today')
-  : (currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow');
 
-if (!apartment || !format || !time) {
-  showModal(
-    currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.'
-  );
-  return;
-}
+  if (!apartment || !format || !time) {
+    showModal(
+      currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.'
+    );
+    return;
+  }
 
-  orderSummary += `${currentLanguage === 'ru' ? 'Апартамент' : 'Apartment'}: ${apartment}\n`;
-  orderSummary += `${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}: ${format}\n`;
-  orderSummary += `${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}: ${dateValue}\n`;
-  orderSummary += `${currentLanguage === 'ru' ? 'Время подачи' : 'Serving time'}: ${time}\n\n`;
+  // Рассчитываем дату в формате дд.мм.гггг
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const dateValue = dateSelect.value === 'today' ? formatDate(today) : formatDate(tomorrow);
+
+  // Формируем orderSummary с HTML для жирного текста и переносов строк
+  let orderSummary = `<strong>${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}</strong><br><br>`;
+  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Апартамент' : 'Apartment'}:</strong> ${escapeHtml(apartment)}<br>`;
+  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}:</strong> ${format}<br>`;
+  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}:</strong> ${dateValue}<br>`;
+  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Время подачи' : 'Serving time'}:</strong> ${time}<br><br>`;
 
   const guestBlocks = guestsDetails.querySelectorAll('.form-section');
   guestBlocks.forEach((block, index) => {
-    const breakfast = block.querySelector(`select[name="guest${index + 1}-breakfast"]`)?.selectedOptions[0]?.textContent || '';
-    orderSummary += `${currentLanguage === 'ru' ? 'Гость' : 'Guest'} ${index + 1}: ${breakfast}\n`;
+    const breakfast = block.querySelector(`select[name="guest${index + 1}-breakfast"]`).selectedOptions[0].textContent;
+    let guestOrder = breakfast;
 
     const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
     if (porridge) {
-      orderSummary += `- ${currentLanguage === 'ru' ? 'Каша' : 'Porridge'}: ${porridge.selectedOptions[0].textContent}\n`;
+      const porridgeValue = porridge.value;
+      const porridgeText = porridge.selectedOptions[0].textContent;
+      if (porridgeValue === 'none') {
+        guestOrder += ` - ${currentLanguage === 'ru' ? 'Без каши' : 'No porridge'}`;
+      } else {
+        guestOrder += ` - ${porridgeText}`;
+      }
     }
 
     const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
     if (drink) {
-      orderSummary += `- ${currentLanguage === 'ru' ? 'Напиток' : 'Drink'}: ${drink.selectedOptions[0].textContent}\n`;
+      guestOrder += ` - ${drink.selectedOptions[0].textContent}`;
     }
 
     const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
     if (dish) {
-      orderSummary += `- ${currentLanguage === 'ru' ? 'Блюдо' : 'Dish'}: ${dish.selectedOptions[0].textContent}\n`;
+      guestOrder += ` - ${dish.selectedOptions[0].textContent}`;
     }
 
     const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
     if (extras.length > 0) {
-      orderSummary += `- ${currentLanguage === 'ru' ? 'Дополнительно' : 'Extras'}: `;
-      orderSummary += Array.from(extras).map(extra => extra.nextSibling.textContent.trim()).join(', ');
-      orderSummary += '\n';
+      const extrasText = Array.from(extras).map(extra => extra.nextSibling.textContent.trim()).join(', ');
+      guestOrder += ` - ${extrasText}`;
     }
-    orderSummary += '\n';
+
+    orderSummary += `<strong>${currentLanguage === 'ru' ? 'Гость' : 'Guest'} ${index + 1}:</strong> ${guestOrder}<br>`;
   });
 
   if (comments) {
-    orderSummary += `${currentLanguage === 'ru' ? 'Комментарии' : 'Comments'}: ${comments}\n\n`;
+    orderSummary += `<br><strong>${currentLanguage === 'ru' ? 'Комментарии' : 'Comments'}:</strong> ${escapeHtml(comments)}<br>`;
   }
 
+  orderSummary += `<br><strong>${currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'}</strong>`;
+
   // Подтверждение заказа
-showConfirmModal(
-  orderSummary + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'),
-  () => {
-    showModal(
-      currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!',
-      () => {
-        resetFormAfterSubmit();
-      }
-    );
-  },
-  () => {
-    // Ничего не делаем при отмене
-  }
-);
-}); // Добавлена закрывающая скобка
+  showConfirmModal(
+    orderSummary,
+    () => {
+      showModal(
+        currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!',
+        () => {
+          resetFormAfterSubmit();
+        }
+      );
+    },
+    () => {
+      // Ничего не делаем при отмене
+    }
+  );
+});
 </script>
 </body>
 </html>
