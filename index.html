@@ -980,11 +980,11 @@ const dateValue = `${day}.${month}.${year}`;
   }
 
   // Подтверждение заказа
-  if (confirm(orderSummary + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'))) {
-    alert(currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!');
-resetFormAfterSubmit();
+showModal(orderSummary + '\n' + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'), () => {
+  showModal(currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!', () => {
+    resetFormAfterSubmit();
     // Здесь будет код отправки данных в Google Таблицу и Telegram
-  }
+  });
 });
 function resetFormAfterSubmit() {
   apartmentNumber.value = '';
