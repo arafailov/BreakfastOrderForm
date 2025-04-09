@@ -317,6 +317,15 @@ h1#form-title {
         <p id="format-info" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;"></p>
       </div>
 
+      <div class="form-section" id="date-section" style="display: none;">
+        <h2 id="date-title">Дата подачи</h2>
+        <select id="date-select" name="date-select" required>
+          <option value="">Выберите дату подачи</option>
+          <option value="today">Сегодня</option>
+          <option value="tomorrow">Завтра</option>
+        </select>
+      </div>
+
       <div class="form-section" id="time-section" style="display: none;">
         <h2 id="time-title">Время подачи</h2>
         <select id="time-select" name="time-select" required></select>
@@ -823,6 +832,15 @@ formatSelectEl.addEventListener('change', () => {
 
   timeSelect.innerHTML = ''; // очищаем старые опции
 
+  // Показываем секцию выбора даты, если выбран формат подачи
+dateSection.style.display = formatSelectEl.value ? 'block' : 'none';
+
+// Устанавливаем значение даты по умолчанию в зависимости от формата
+if (formatSelectEl.value === 'restaurant') {
+  dateSelect.value = 'tomorrow';
+} else if (formatSelectEl.value === 'lunchbox') {
+  dateSelect.value = 'today';
+  
   if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
   showModal(
     currentLanguage === 'ru'
@@ -913,6 +931,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
 
   orderSummary += `${currentLanguage === 'ru' ? 'Апартамент' : 'Apartment'}: ${apartment}\n`;
   orderSummary += `${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}: ${format}\n`;
+  orderSummary += `${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}: ${dateValue}\n`;
   orderSummary += `${currentLanguage === 'ru' ? 'Время подачи' : 'Serving time'}: ${time}\n\n`;
 
   const guestBlocks = guestsDetails.querySelectorAll('.form-section');
