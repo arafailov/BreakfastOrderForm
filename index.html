@@ -377,6 +377,69 @@ h1#form-title {
   };
 }
 
+function showConfirmModal(message, onConfirm, onCancel) {
+  const overlay = document.getElementById('modal-overlay');
+  const modalWindow = document.getElementById('modal-window');
+  const modalMessage = document.getElementById('modal-message');
+  const modalOkButton = document.getElementById('modal-ok-button');
+
+  // Убираем старую кнопку "Ок"
+  modalOkButton.style.display = 'none';
+
+  // Создаем новые кнопки "Да" и "Нет"
+  const confirmButtons = document.createElement('div');
+  confirmButtons.style.display = 'flex';
+  confirmButtons.style.justifyContent = 'center';
+  confirmButtons.style.gap = '1rem';
+  confirmButtons.style.marginTop = '1.5rem';
+
+  const yesButton = document.createElement('button');
+  yesButton.textContent = currentLanguage === 'ru' ? 'Да' : 'Yes';
+  yesButton.style.padding = '0.75rem 2rem';
+  yesButton.style.backgroundColor = '#c49a5f';
+  yesButton.style.color = '#ffffff';
+  yesButton.style.border = 'none';
+  yesButton.style.borderRadius = '2rem';
+  yesButton.style.fontWeight = '600';
+  yesButton.style.fontSize = '1rem';
+  yesButton.style.cursor = 'pointer';
+  
+  const noButton = document.createElement('button');
+  noButton.textContent = currentLanguage === 'ru' ? 'Нет' : 'No';
+  noButton.style.padding = '0.75rem 2rem';
+  noButton.style.backgroundColor = '#ccc';
+  noButton.style.color = '#262d36';
+  noButton.style.border = 'none';
+  noButton.style.borderRadius = '2rem';
+  noButton.style.fontWeight = '600';
+  noButton.style.fontSize = '1rem';
+  noButton.style.cursor = 'pointer';
+
+  confirmButtons.appendChild(yesButton);
+  confirmButtons.appendChild(noButton);
+
+  // Добавляем текст и кнопки в модалку
+  modalMessage.textContent = message;
+  modalWindow.appendChild(confirmButtons);
+  overlay.style.display = 'flex';
+
+  // Обработчики кнопок
+  yesButton.onclick = () => {
+    overlay.style.display = 'none';
+    confirmButtons.remove();
+    modalOkButton.style.display = 'inline-block';
+    if (onConfirm) onConfirm();
+  };
+
+  noButton.onclick = () => {
+    overlay.style.display = 'none';
+    confirmButtons.remove();
+    modalOkButton.style.display = 'inline-block';
+    if (onCancel) onCancel();
+  };
+}
+
+  
 let currentLanguage = 'ru';
 
 const ruBtn = document.getElementById('ru-btn');
@@ -923,10 +986,12 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   ? (currentLanguage === 'ru' ? 'Сегодня' : 'Today')
   : (currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow');
 
-  if (!apartment || !format || !time) {
-    alert(currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.');
-    return;
-  }
+if (!apartment || !format || !time) {
+  showModal(
+    currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.'
+  );
+  return;
+}
 
   orderSummary += `${currentLanguage === 'ru' ? 'Апартамент' : 'Apartment'}: ${apartment}\n`;
   orderSummary += `${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}: ${format}\n`;
@@ -967,12 +1032,20 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   }
 
   // Подтверждение заказа
-  if (confirm(orderSummary + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'))) {
-    alert(currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!');
-resetFormAfterSubmit();
-    // Здесь будет код отправки данных в Google Таблицу и Telegram
+showConfirmModal(
+  orderSummary + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'),
+  () => {
+    showModal(
+      currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!',
+      () => {
+        resetFormAfterSubmit();
+      }
+    );
+  },
+  () => {
+    // Ничего не делаем при отмене
   }
-});
+);
 function resetFormAfterSubmit() {
   apartmentNumber.value = '';
   formatSelectEl.selectedIndex = 0;
