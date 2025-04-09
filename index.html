@@ -537,6 +537,8 @@ function translateStaticTexts() {
   document.getElementById('format-title').textContent = t.formatTitle;
   document.getElementById('time-title').textContent = t.timeTitle;
   document.getElementById('guests-title').textContent = t.guestsTitle;
+  document.getElementById('date-title').textContent = currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date';
+
 }
 function regenerateGuests() {
   const guestBlocks = guestsDetails.querySelectorAll('.form-section');
