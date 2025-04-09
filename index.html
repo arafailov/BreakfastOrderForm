@@ -502,11 +502,7 @@ document.getElementById('comments-title').textContent = t.commentsTitle;
     formatSelectEl.options[1].textContent = t.formatRestaurant;
     formatSelectEl.options[2].textContent = t.formatLunchbox;
   }
-  if (dateSelect.options.length >= 3) {
-    dateSelect.options[0].textContent = currentLanguage === 'ru' ? 'Выберите дату подачи' : 'Select serving date';
-    dateSelect.options[1].textContent = currentLanguage === 'ru' ? 'Сегодня' : 'Today';
-    dateSelect.options[2].textContent = currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow';
-  }
+
   if (guestsCount.options.length > 0) {
     guestsCount.options[0].textContent = t.guestsPlaceholder;
   }
@@ -537,8 +533,6 @@ function translateStaticTexts() {
   document.getElementById('format-title').textContent = t.formatTitle;
   document.getElementById('time-title').textContent = t.timeTitle;
   document.getElementById('guests-title').textContent = t.guestsTitle;
-  document.getElementById('date-title').textContent = currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date';
-
 }
 function regenerateGuests() {
   const guestBlocks = guestsDetails.querySelectorAll('.form-section');
@@ -898,49 +892,7 @@ formatSelectEl.addEventListener('change', () => {
   }
 });
 
-function showConfirmModal(message, onConfirm, onCancel) {
-  const overlay = document.getElementById('modal-overlay');
-  const modalWindow = document.getElementById('modal-window');
-  const modalMessage = document.getElementById('modal-message');
-  const modalOkButton = document.getElementById('modal-ok-button');
 
-  modalMessage.textContent = message;
-  overlay.style.display = 'flex';
-
-  // Убираем старые кнопки
-  const existingCancelBtn = document.getElementById('modal-cancel-button');
-  if (existingCancelBtn) existingCancelBtn.remove();
-
-  // Создаем кнопку "Отмена"
-  const cancelButton = document.createElement('button');
-  cancelButton.id = 'modal-cancel-button';
-  cancelButton.textContent = currentLanguage === 'ru' ? 'Отмена' : 'Cancel';
-  cancelButton.style.marginLeft = '1rem';
-  cancelButton.style.padding = '0.75rem 2rem';
-  cancelButton.style.backgroundColor = '#ccc';
-  cancelButton.style.color = '#262d36';
-  cancelButton.style.border = 'none';
-  cancelButton.style.borderRadius = '2rem';
-  cancelButton.style.fontWeight = '600';
-  cancelButton.style.fontSize = '1rem';
-  cancelButton.style.cursor = 'pointer';
-  cancelButton.style.fontFamily = "'Circe', sans-serif";
-  cancelButton.style.transition = 'background-color 0.3s ease';
-
-  cancelButton.addEventListener('click', () => {
-    overlay.style.display = 'none';
-    if (onCancel) onCancel();
-  });
-
-  modalOkButton.textContent = currentLanguage === 'ru' ? 'Подтвердить' : 'Confirm';
-
-  modalOkButton.onclick = () => {
-    overlay.style.display = 'none';
-    if (onConfirm) onConfirm();
-  };
-
-  modalWindow.appendChild(cancelButton);
-}
 // Обработка отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
@@ -969,14 +921,9 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const comments = commentsField.value.trim();
-let selectedDate = new Date();
-if (dateSelect.value === 'tomorrow') {
-  selectedDate.setDate(selectedDate.getDate() + 1);
-}
-const day = String(selectedDate.getDate()).padStart(2, '0');
-const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-const year = String(selectedDate.getFullYear());
-const dateValue = `${day}.${month}.${year}`;
+  const dateValue = dateSelect.value === 'today'
+  ? (currentLanguage === 'ru' ? 'Сегодня' : 'Today')
+  : (currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow');
 
   if (!apartment || !format || !time) {
     alert(currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.');
@@ -1021,14 +968,13 @@ const dateValue = `${day}.${month}.${year}`;
     orderSummary += `${currentLanguage === 'ru' ? 'Комментарии' : 'Comments'}: ${comments}\n\n`;
   }
 
-
   // Подтверждение заказа
-if (confirm(orderSummary + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'))) {
-  alert(currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!');
-  resetFormAfterSubmit();
-  // Здесь будет код отправки данных в Google Таблицу и Telegram
-}
-
+  if (confirm(orderSummary + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'))) {
+    alert(currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!');
+resetFormAfterSubmit();
+    // Здесь будет код отправки данных в Google Таблицу и Telegram
+  }
+});
 function resetFormAfterSubmit() {
   apartmentNumber.value = '';
   formatSelectEl.selectedIndex = 0;
