@@ -395,6 +395,8 @@ const guestsDetails = document.getElementById('guests-details');
 const commentsTitle = document.getElementById('comments-title');
 const commentsField = document.getElementById('comments');
 const submitButton = document.getElementById('submit-button');
+const dateSection = document.getElementById('date-section');
+const dateSelect = document.getElementById('date-select');
 
 const breakfastOptions = [
   { value: 'hearty', ru: 'Сытный завтрак – 850₽', en: 'Hearty breakfast – 850₽' },
@@ -923,6 +925,9 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const comments = commentsField.value.trim();
+  const dateValue = dateSelect.value === 'today'
+  ? (currentLanguage === 'ru' ? 'Сегодня' : 'Today')
+  : (currentLanguage === 'ru' ? 'Завтра' : 'Tomorrow');
 
   if (!apartment || !format || !time) {
     alert(currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.');
