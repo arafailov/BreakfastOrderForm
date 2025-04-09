@@ -978,13 +978,58 @@ const dateValue = `${day}.${month}.${year}`;
   if (comments) {
     orderSummary += `${currentLanguage === 'ru' ? 'Комментарии' : 'Comments'}: ${comments}\n\n`;
   }
+function showConfirmModal(message, onConfirm, onCancel) {
+  const overlay = document.getElementById('modal-overlay');
+  const modalWindow = document.getElementById('modal-window');
+  const modalMessage = document.getElementById('modal-message');
+  const modalOkButton = document.getElementById('modal-ok-button');
+
+  modalMessage.textContent = message;
+  overlay.style.display = 'flex';
+
+  // Убираем старые кнопки
+  const existingCancelBtn = document.getElementById('modal-cancel-button');
+  if (existingCancelBtn) existingCancelBtn.remove();
+
+  // Создаем кнопку "Отмена"
+  const cancelButton = document.createElement('button');
+  cancelButton.id = 'modal-cancel-button';
+  cancelButton.textContent = currentLanguage === 'ru' ? 'Отмена' : 'Cancel';
+  cancelButton.style.marginLeft = '1rem';
+  cancelButton.style.padding = '0.75rem 2rem';
+  cancelButton.style.backgroundColor = '#ccc';
+  cancelButton.style.color = '#262d36';
+  cancelButton.style.border = 'none';
+  cancelButton.style.borderRadius = '2rem';
+  cancelButton.style.fontWeight = '600';
+  cancelButton.style.fontSize = '1rem';
+  cancelButton.style.cursor = 'pointer';
+  cancelButton.style.fontFamily = "'Circe', sans-serif";
+  cancelButton.style.transition = 'background-color 0.3s ease';
+
+  cancelButton.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    if (onCancel) onCancel();
+  });
+
+  modalOkButton.textContent = currentLanguage === 'ru' ? 'Подтвердить' : 'Confirm';
+
+  modalOkButton.onclick = () => {
+    overlay.style.display = 'none';
+    if (onConfirm) onConfirm();
+  };
+
+  modalWindow.appendChild(cancelButton);
+}
 
   // Подтверждение заказа
-showModal(orderSummary + '\n' + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'), () => {
+showConfirmModal(orderSummary + '\n' + (currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'), () => {
   showModal(currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!', () => {
     resetFormAfterSubmit();
     // Здесь будет код отправки данных в Google Таблицу и Telegram
   });
+}, () => {
+  // Ничего не делаем, пользователь отменил
 });
 function resetFormAfterSubmit() {
   apartmentNumber.value = '';
