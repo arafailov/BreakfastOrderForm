@@ -275,7 +275,64 @@ h1#form-title {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+.intro-section {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Circe', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #262d36;
+}
 
+.intro-text p {
+  margin: 0 0 1rem 0;
+}
+
+.intro-text ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+}
+
+.intro-text ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.intro-text ul li:before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #c49a5f;
+  font-size: 1.2rem;
+}
+
+.intro-text strong {
+  color: #262d36;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .intro-section {
+    margin: 1rem auto;
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .intro-text p {
+    margin: 0 0 0.75rem 0;
+  }
+
+  .intro-text ul li {
+    padding-left: 1.2rem;
+    margin-bottom: 0.4rem;
+  }
+}
   </style>
 </head>
 
@@ -297,7 +354,32 @@ h1#form-title {
 
   <h1 id="form-title">Заказ завтраков</h1>
 </header>
-
+<section class="intro-section">
+  <div id="intro-ru" class="intro-text">
+    <p><strong>Каждое утро с 9:30 до 11:30</strong> мы приглашаем вас на завтрак в ресторан Memet&PIR.<br>
+    Он находится рядом: выйдите из здания на 2-ю Советскую улицу через основной ресепшен, поверните налево — следующая дверь будет входом в ресторан.</p>
+    <p><strong>Вы можете выбрать формат подачи:</strong></p>
+    <ul>
+      <li><strong>В ресторане</strong> — завтрак подаётся по выбранному времени в зале ресторана;</li>
+      <li><strong>Ланчбокс</strong> — завтрак, собранный для вас заранее и готовый к выдаче вечером на ресепшене (при заказе до 20:00).</li>
+    </ul>
+    <p><strong>Турецкий завтрак</strong> доступен только в ресторане.</p>
+    <p>Заполните короткую форму ниже: укажите номер апартамента, дату, формат подачи и пожелания к завтраку.<br>
+    Если появятся вопросы — всегда рады помочь на ресепшене!</p>
+  </div>
+  <div id="intro-en" class="intro-text" style="display: none;">
+    <p><strong>Every morning from 9:30 AM to 11:30 AM</strong>, we invite you to breakfast at Memet&PIR restaurant.<br>
+    It’s just around the corner: exit through the main reception onto 2nd Sovetskaya Street, turn left, and you’ll find the entrance to the restaurant right next door.</p>
+    <p><strong>You can choose your preferred serving format:</strong></p>
+    <ul>
+      <li><strong>At the restaurant</strong> — breakfast will be served at your selected time;</li>
+      <li><strong>Lunchbox</strong> — a takeaway breakfast prepared for you in advance, available for pickup at the reception desk in the evening (please order by 8:00 PM).</li>
+    </ul>
+    <p><strong>Please note:</strong> Turkish breakfast is available only at the restaurant.</p>
+    <p>Fill out the short form below: indicate your apartment number, serving format, date, and breakfast preferences.<br>
+    If you have any questions, feel free to contact the reception — we’re always happy to help!</p>
+  </div>
+</section>
   <main>
     <form id="breakfast-form">
       <div class="form-section" id="apartment-section">
@@ -451,6 +533,8 @@ function showConfirmModal(message, onConfirm, onCancel) {
   
 let currentLanguage = 'ru';
 
+const introRu = document.getElementById('intro-ru');
+const introEn = document.getElementById('intro-en');
 const ruBtn = document.getElementById('ru-btn');
 const enBtn = document.getElementById('en-btn');
 const formTitle = document.getElementById('form-title');
@@ -621,6 +705,15 @@ function updateTexts() {
   commentsField.placeholder = t.commentsPlaceholder;
   submitButton.textContent = t.submitButton;
 
+  // Переключение вступительного текста
+  if (currentLanguage === 'ru') {
+    introRu.style.display = 'block';
+    introEn.style.display = 'none';
+  } else {
+    introRu.style.display = 'none';
+    introEn.style.display = 'block';
+  }
+  
   translateStaticTexts();
 
   if (guestsCount.value) {
