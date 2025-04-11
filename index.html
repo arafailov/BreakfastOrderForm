@@ -474,7 +474,25 @@ const breakfastOptions = [
   { value: 'assorted', ru: 'Ассорти завтрак – 1100₽', en: 'Assorted breakfast – 1100₽' },
   { value: 'turkish', ru: 'Турецкий завтрак – 1800₽ (только ресторан)', en: 'Turkish breakfast – 1800₽ (restaurant only)' },
 ];
+dateSelect.addEventListener('change', () => {
+  const now = new Date();
+  const utcHours = now.getUTCHours();
+  const moscowHours = (utcHours + 3) % 24;
+  const moscowMinutes = now.getUTCMinutes();
+  const currentTime = moscowHours * 60 + moscowMinutes;
+  const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве
 
+  if (formatSelectEl.value === 'restaurant' && dateSelect.value === 'today' && currentTime > restaurantCutoffTime) {
+    showModal(
+      currentLanguage === 'ru'
+        ? 'Заказ в ресторане после 11:30 доступен только на завтра. Пожалуйста, выберите другую дату.'
+        : 'Restaurant orders after 11:30 are available only for tomorrow. Please select another date.',
+      () => {
+        dateSelect.value = 'tomorrow';
+      }
+    );
+  }
+});
 const breakfastDescriptions = {
   hearty: {
     ru: "Глазунья с сосисками, сыр, овощная нарезка, каша и напиток на выбор",
@@ -773,39 +791,62 @@ updateTurkishBreakfastAvailability();
       const extraOptions = document.getElementById(`extra-options-${i}`);
       const extrasDiv = document.getElementById(`extras-${i}`);
       
-      function updateLunchboxAvailability() {
-        const now = new Date();
-        const utcHours = now.getUTCHours(); // Часы по UTC
-        const moscowHours = (utcHours + 3) % 24; // Плюс 3 часа для Москвы
-        const moscowMinutes = now.getUTCMinutes(); // Минуты те же
+function updateLunchboxAvailability() {
+  const now = new Date();
+  const utcHours = now.getUTCHours(); // Часы по UTC
+  const moscowHours = (utcHours + 3) % 24; // Плюс 3 часа для Москвы
+  const moscowMinutes = now.getUTCMinutes(); // Минуты те же
+
+  const currentTime = moscowHours * 60 + moscowMinutes;
+  const lunchboxCutoffTime = 20 * 60; // 20:00 по Москве = 1200 минут
+  const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве = 690 минут
+
+  const lunchboxOption = formatSelectEl.querySelector('option[value="lunchbox"]');
+  const dateTodayOption = dateSelect.querySelector('option[value="today"]');
+  const dateTomorrowOption = dateSelect.querySelector('option[value="tomorrow"]');
+
+  // Проверка для ланчбокса
+  if (lunchboxOption) {
+    if (currentTime > lunchboxCutoffTime) {
+      lunchboxOption.disabled = true;
+      lunchboxOption.style.color = '#999';
+      lunchboxOption.title = currentLanguage === 'ru'
+        ? 'Ланчбокс заказывается до 20:00 по московскому времени. Пожалуйста, уточните на ресепшене.'
+        : 'Lunchbox orders must be placed before 8 PM Moscow time. Please ask at the reception.';
       
-        const currentTime = moscowHours * 60 + moscowMinutes;
-        const cutoffTime = 20 * 60; // 20:00 по Москве = 1200 минут
-      
-        const lunchboxOption = formatSelectEl.querySelector('option[value="lunchbox"]');
-        
-        if (lunchboxOption) {
-          if (currentTime > cutoffTime) {
-            lunchboxOption.disabled = true;
-            lunchboxOption.style.color = '#999';
-            lunchboxOption.title = currentLanguage === 'ru'
-              ? 'Ланчбокс заказывается до 20:00 по московскому времени. Пожалуйста, уточните на ресепшене.'
-              : 'Lunchbox orders must be placed before 8 PM Moscow time. Please ask at the reception.';
-            
-            // Если "Ланчбокс" сейчас выбран — сбросить формат и очистить время
-            if (formatSelectEl.value === 'lunchbox') {
-              formatSelectEl.value = '';
-              formatInfoEl.textContent = currentLanguage === 'ru'
-                ? 'Выберите формат подачи'
-                : 'Select serving format';
-              timeSection.style.display = 'none';
-            }
-          } else {
-            lunchboxOption.disabled = false;
-            lunchboxOption.style.color = '';
-            lunchboxOption.title = '';
-          }
-        }
+      // Если "Ланчбокс" сейчас выбран — сбросить формат и очистить время
+      if (formatSelectEl.value === 'lunchbox') {
+        formatSelectEl.value = '';
+        formatInfoEl.textContent = currentLanguage === 'ru'
+          ? 'Выберите формат подачи'
+          : 'Select serving format';
+        timeSection.style.display = 'none';
+        dateSection.style.display = 'none';
+      }
+    } else {
+      lunchboxOption.disabled = false;
+      lunchboxOption.style.color = '';
+      lunchboxOption.title = '';
+    }
+  }
+
+  // Проверка для ресторана после 11:30
+  if (formatSelectEl.value === 'restaurant' && dateTodayOption && dateTomorrowOption) {
+    if (currentTime > restaurantCutoffTime) {
+      dateTodayOption.disabled = true;
+      dateTodayOption.style.color = '#999';
+      dateTodayOption.title = currentLanguage === 'ru'
+        ? 'Заказ в ресторане после 11:30 доступен только на завтра.'
+        : 'Restaurant orders after 11:30 are available only for tomorrow.';
+      if (dateSelect.value === 'today') {
+        dateSelect.value = 'tomorrow';
+      }
+    } else {
+      dateTodayOption.disabled = false;
+      dateTodayOption.style.color = '';
+      dateTodayOption.title = '';
+    }
+  }
 }
 
 
@@ -920,20 +961,25 @@ formatSelectEl.addEventListener('change', () => {
   const moscowHours = (utcHours + 3) % 24;
   const moscowMinutes = now.getUTCMinutes();
   const currentTime = moscowHours * 60 + moscowMinutes;
-  const cutoffTime = 20 * 60; // 20:00 по Москве
+  const lunchboxCutoffTime = 20 * 60; // 20:00 по Москве
+  const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве
 
   timeSelect.innerHTML = ''; // очищаем старые опции
 
   dateSection.style.display = formatSelectEl.value ? 'block' : 'none';
 
   if (formatSelectEl.value === 'restaurant') {
-    dateSelect.value = 'tomorrow';
+    if (currentTime > restaurantCutoffTime) {
+      dateSelect.value = 'tomorrow';
+    } else {
+      dateSelect.value = 'tomorrow'; // По умолчанию "Завтра", но "Сегодня" доступно
+    }
   } else if (formatSelectEl.value === 'lunchbox') {
     dateSelect.value = 'today';
   }
 
-  // === ВАЖНО: проверка на ланчбокс поздно вечером ===
-  if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
+  // Проверка на ланчбокс поздно вечером
+  if (formatSelectEl.value === 'lunchbox' && currentTime > lunchboxCutoffTime) {
     showModal(
       currentLanguage === 'ru'
         ? 'Ланчбокс можно заказать только до 20:00 по московскому времени. Подача будет организована в ресторане.'
@@ -943,9 +989,8 @@ formatSelectEl.addEventListener('change', () => {
         formatSelectEl.dispatchEvent(new Event('change'));
       }
     );
-    return; // обязательно return после модалки
+    return;
   }
-  // === Конец проверки ===
 
   if (formatSelectEl.value === 'restaurant') {
     formatInfoEl.textContent = currentLanguage === 'ru'
@@ -981,6 +1026,8 @@ formatSelectEl.addEventListener('change', () => {
     formatInfoEl.textContent = '';
     timeSection.style.display = 'none';
   }
+
+  updateLunchboxAvailability(); // Вызываем для обновления доступности дат
 });
 function resetFormAfterSubmit() {
   apartmentNumber.value = '';
@@ -1003,23 +1050,35 @@ function escapeHtml(text) {
              .replace(/'/g, '&#039;');
 }
 
-// Обработка отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
-  // Проверяем актуальность выбора формата подачи
+  // Проверяем актуальность выбора формата подачи и даты
   const now = new Date();
   const utcHours = now.getUTCHours();
   const moscowHours = (utcHours + 3) % 24;
   const moscowMinutes = now.getUTCMinutes();
   const currentTime = moscowHours * 60 + moscowMinutes;
-  const cutoffTime = 20 * 60;
+  const lunchboxCutoffTime = 20 * 60; // 20:00
+  const restaurantCutoffTime = 11 * 60 + 30; // 11:30
 
-  if (formatSelectEl.value === 'lunchbox' && currentTime > cutoffTime) {
+  if (formatSelectEl.value === 'lunchbox' && currentTime > lunchboxCutoffTime) {
     showModal(
       currentLanguage === 'ru'
         ? 'Заказ ланчбоксов возможен только до 20:00 по московскому времени. Пожалуйста, выберите другой формат подачи.'
         : 'Lunchbox orders are available only until 8 PM Moscow time. Please select another serving format.'
+    );
+    return;
+  }
+
+  if (formatSelectEl.value === 'restaurant' && dateSelect.value === 'today' && currentTime > restaurantCutoffTime) {
+    showModal(
+      currentLanguage === 'ru'
+        ? 'Заказ в ресторане после 11:30 доступен только на завтра. Пожалуйста, выберите другую дату.'
+        : 'Restaurant orders after 11:30 are available only for tomorrow. Please select another date.',
+      () => {
+        dateSelect.value = 'tomorrow';
+      }
     );
     return;
   }
