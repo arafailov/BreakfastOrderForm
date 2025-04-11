@@ -333,6 +333,48 @@ h1#form-title {
     margin-bottom: 0.4rem;
   }
 }
+    #name-section {
+  margin-bottom: 2rem;
+}
+
+#name-section h2 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+}
+
+#name-section input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  font-family: 'Circe', sans-serif;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+#name-section input:focus {
+  outline: none;
+  border-color: #c49a5f;
+  box-shadow: 0 0 5px rgba(196, 154, 95, 0.3);
+}
+
+@media (max-width: 600px) {
+  #name-section {
+    margin-bottom: 1.5rem;
+  }
+
+  #name-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+
+  #name-section input {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
   </style>
 </head>
 
@@ -382,6 +424,12 @@ h1#form-title {
 </section>
   <main>
     <form id="breakfast-form">
+      <div class="form-section" id="name-section">
+      <h2 id="first-name-title">Имя</h2>
+      <input type="text" id="first-name" name="first-name" placeholder="Введите имя" required>
+      <h2 id="last-name-title">Фамилия</h2>
+      <input type="text" id="last-name" name="last-name" placeholder="Введите фамилию" required>
+    </div>
       <div class="form-section" id="apartment-section">
         <h2 id="apartment-title">Номер апартамента</h2>
         <input type="text" id="apartment-number" name="apartment-number" placeholder="Введите номер апартамента" required>
@@ -533,6 +581,10 @@ function showConfirmModal(message, onConfirm, onCancel) {
   
 let currentLanguage = 'ru';
 
+const firstNameInput = document.getElementById('first-name');
+const lastNameInput = document.getElementById('last-name');
+const firstNameTitle = document.getElementById('first-name-title');
+const lastNameTitle = document.getElementById('last-name-title');
 const introRu = document.getElementById('intro-ru');
 const introEn = document.getElementById('intro-en');
 const ruBtn = document.getElementById('ru-btn');
@@ -625,6 +677,10 @@ const extras = [
 const translations = {
   ru: {
     formTitle: 'Заказ завтраков',
+    firstNameTitle: 'Имя', // Добавлено
+    firstNamePlaceholder: 'Введите имя', // Добавлено
+    lastNameTitle: 'Фамилия', // Добавлено
+    lastNamePlaceholder: 'Введите фамилию', // Добавлено
     apartmentTitle: 'Номер апартамента',
     apartmentPlaceholder: 'Введите номер апартамента',
     formatTitle: 'Формат подачи',
@@ -644,6 +700,10 @@ const translations = {
   },
   en: {
     formTitle: 'Breakfast Order',
+    firstNameTitle: 'First Name', // Добавлено
+    firstNamePlaceholder: 'Enter first name', // Добавлено
+    lastNameTitle: 'Last Name', // Добавлено
+    lastNamePlaceholder: 'Enter last name', // Добавлено
     apartmentTitle: 'Apartment Number',
     apartmentPlaceholder: 'Enter apartment number',
     formatTitle: 'Serving format',
@@ -676,6 +736,10 @@ function updateTexts() {
   const t = translations[currentLanguage];
 
   formTitle.textContent = t.formTitle;
+  firstNameTitle.textContent = t.firstNameTitle; // Добавлено
+  firstNameInput.placeholder = t.firstNamePlaceholder; // Добавлено
+  lastNameTitle.textContent = t.lastNameTitle; // Добавлено
+  lastNameInput.placeholder = t.lastNamePlaceholder; // Добавлено
   apartmentTitle.textContent = t.apartmentTitle;
   apartmentNumber.placeholder = t.apartmentPlaceholder;
   document.getElementById('format-title').textContent = t.formatTitle;
@@ -1123,6 +1187,8 @@ formatSelectEl.addEventListener('change', () => {
   updateLunchboxAvailability(); // Вызываем для обновления доступности дат
 });
 function resetFormAfterSubmit() {
+  firstNameInput.value = ''; // Добавлено
+  lastNameInput.value = ''; // Добавлено
   apartmentNumber.value = '';
   formatSelectEl.selectedIndex = 0;
   timeSelect.innerHTML = '';
@@ -1146,14 +1212,13 @@ function escapeHtml(text) {
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
-  // Проверяем актуальность выбора формата подачи и даты
   const now = new Date();
   const utcHours = now.getUTCHours();
   const moscowHours = (utcHours + 3) % 24;
   const moscowMinutes = now.getUTCMinutes();
   const currentTime = moscowHours * 60 + moscowMinutes;
-  const lunchboxCutoffTime = 20 * 60; // 20:00
-  const restaurantCutoffTime = 11 * 60 + 30; // 11:30
+  const lunchboxCutoffTime = 20 * 60;
+  const restaurantCutoffTime = 11 * 60 + 30;
 
   if (formatSelectEl.value === 'lunchbox' && currentTime > lunchboxCutoffTime) {
     showModal(
@@ -1176,26 +1241,28 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     return;
   }
 
+  const firstName = firstNameInput.value.trim();
+  const lastName = lastNameInput.value.trim();
   const apartment = apartmentNumber.value.trim();
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const comments = commentsField.value.trim();
 
-  if (!apartment || !format || !time) {
+  if (!firstName || !lastName || !apartment || !format || !time) {
     showModal(
       currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.'
     );
     return;
   }
 
-  // Рассчитываем дату в формате дд.мм.гггг
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
   const dateValue = dateSelect.value === 'today' ? formatDate(today) : formatDate(tomorrow);
 
-  // Формируем orderSummary с HTML для жирного текста и переносов строк
   let orderSummary = `<strong>${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}</strong><br><br>`;
+  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Имя' : 'First Name'}:</strong> ${escapeHtml(firstName)}<br>`;
+  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Фамилия' : 'Last Name'}:</strong> ${escapeHtml(lastName)}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Апартамент' : 'Apartment'}:</strong> ${escapeHtml(apartment)}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}:</strong> ${format}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}:</strong> ${dateValue}<br>`;
@@ -1242,7 +1309,6 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
 
   orderSummary += `<br><strong>${currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'}</strong>`;
 
-  // Подтверждение заказа
   showConfirmModal(
     orderSummary,
     () => {
