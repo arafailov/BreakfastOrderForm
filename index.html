@@ -1346,7 +1346,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
         mode: 'no-cors' // Add this
       })
       .then(response => response.text())
