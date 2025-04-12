@@ -1234,11 +1234,11 @@ function resetFormAfterSubmit() {
 
 // Функция для экранирования HTML
 function escapeHtml(text) {
-  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' };
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-// Обновленный обработчик отправки формы
+// Обработчик отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -1316,11 +1316,15 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     let guestOrderForSheet = `${index + 1}. ${breakfastTextForSheet}`;
 
     const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
-    if (porridge && porridge.value !== 'none') {
-      const porridgeText = porridge.selectedOptions[0].textContent;
-      const porridgeTextForSheet = porridges.find(p => p.value === porridge.value)?.ru || porridgeText;
-      guestOrder += `, ${porridgeText}`;
-      guestOrderForSheet += `, ${porridgeTextForSheet}`;
+    if (porridge) {
+      if (porridge.value !== 'none') {
+        const porridgeText = porridge.selectedOptions[0].textContent;
+        const porridgeTextForSheet = porridges.find(p => p.value === porridge.value)?.ru || porridgeText;
+        guestOrder += `, ${porridgeText}`; // В модалке добавляем только если выбрано
+        guestOrderForSheet += `, ${porridgeTextForSheet}`;
+      } else {
+        guestOrderForSheet += `, без каши`; // В Google Таблице добавляем "без каши", если не выбрано
+      }
     }
 
     const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
@@ -1353,9 +1357,9 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
         .join(', ');
       extrasTextForSheet = Array.from(extras)
         .map(extra => {
-          const label = extra.nextSibling.textContent.trim();
-          const nameOnly = label.split(' – ')[0];
-          return `${nameOnly} (доп.)`;
+          const extraValue = extra.value;
+          const extraTextForSheet = extras.find(e => e.value === extraValue)?.ru.split(' – ')[0] || extra.nextSibling.textContent.trim().split(' – ')[0];
+          return `${extraTextForSheet} (доп.)`;
         })
         .join(', ');
       guestOrder += `, ${extrasText}`;
@@ -1392,11 +1396,14 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       assortedCount: assortedCount,
       turkishCount: turkishCount,
       details: detailsForSheet.trim(),
-      language: currentLanguage === 'ru' ? 'Русский' : 'English',
+      language: currentLanguage === 'ru' ? 'рус.' : 'англ.',
       fullName: `${firstName} ${lastName}`,
-      format: formatValue === 'lunchbox' ? 'Ланчбокс' : '' // Добавляем формат подачи
+      format: formatValue === 'lunchbox' ? 'Ланчбокс' : ''
     };
-    fetch('https://script.google.com/macros/s/AKfycbwKHSAXb6XL685Lyt2iMFSQKk1xYilxnZIs36IOrZdxm6lOv9XSF5ZXIb622BY4dBxH/exec', {
+
+    console.log('Отправляемые данные:', data);
+
+    fetch('https://script.google.com/macros/s/ВАШ_URL/exec', {
       method: 'POST',
       body: JSON.stringify(data),
       headers: { 'Content-Type': 'application/json' },
@@ -1415,15 +1422,6 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     // Ничего не делаем при отмене
   });
 });
-
-// Полный сброс формы
-function resetFormAfterSubmit() {
-  document.getElementById('breakfast-form').reset();
-  guestsDetails.innerHTML = '';
-  dateSection.style.display = 'none';
-  timeSection.style.display = 'none';
-  formatInfoEl.textContent = '';
-}
 </script>
 </body>
 </html>
