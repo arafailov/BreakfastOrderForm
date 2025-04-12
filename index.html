@@ -1212,55 +1212,19 @@ function escapeHtml(text) {
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
-  const now = new Date();
-  const utcHours = now.getUTCHours();
-  const moscowHours = (utcHours + 3) % 24;
-  const moscowMinutes = now.getUTCMinutes();
-  const currentTime = moscowHours * 60 + moscowMinutes;
-  const lunchboxCutoffTime = 20 * 60;
-  const restaurantCutoffTime = 11 * 60 + 30;
+  // Получаем данные из формы (предполагается, что эти переменные уже определены)
+  const dateValue = document.getElementById('date').value;
+  const time = document.getElementById('time').value;
+  const apartment = document.getElementById('apartment').value;
+  const guestsCount = document.getElementById('guests-count'); // Поле с количеством гостей
+  const guestCount = guestsCount.value; // Значение количества гостей
+  const guestsDetails = document.getElementById('guests-details'); // Контейнер блоков гостей
+  const firstName = document.getElementById('first-name').value;
+  const lastName = document.getElementById('last-name').value;
+  const comments = document.getElementById('comments')?.value || '';
+  const currentLanguage = document.querySelector('html').lang || 'ru'; // Определяем язык
 
-  if (formatSelectEl.value === 'lunchbox' && currentTime > lunchboxCutoffTime) {
-    showModal(
-      currentLanguage === 'ru'
-        ? 'Заказ ланчбоксов возможен только до 20:00 по московскому времени. Пожалуйста, выберите другой формат подачи.'
-        : 'Lunchbox orders are available only until 8 PM Moscow time. Please select another serving format.'
-    );
-    return;
-  }
-
-  if (formatSelectEl.value === 'restaurant' && dateSelect.value === 'today' && currentTime > restaurantCutoffTime) {
-    showModal(
-      currentLanguage === 'ru'
-        ? 'Заказ в ресторане после 11:30 доступен только на завтра. Пожалуйста, выберите другую дату.'
-        : 'Restaurant orders after 11:30 are available only for tomorrow. Please select another date.',
-      () => {
-        dateSelect.value = 'tomorrow';
-      }
-    );
-    return;
-  }
-
-  const firstName = firstNameInput.value.trim();
-  const lastName = lastNameInput.value.trim();
-  const apartment = apartmentNumber.value.trim();
-  const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
-  const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
-  const comments = commentsField.value.trim();
-
-  if (!firstName || !lastName || !apartment || !format || !time) {
-    showModal(
-      currentLanguage === 'ru' ? 'Пожалуйста, заполните все обязательные поля.' : 'Please fill all required fields.'
-    );
-    return;
-  }
-
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const dateValue = dateSelect.value === 'today' ? formatDate(today) : formatDate(tomorrow);
-
-  // Подсчет типов завтраков
+  // Подсчет типов завтраков и формирование состава
   let heartyCount = 0;
   let sweetCount = 0;
   let assortedCount = 0;
@@ -1271,106 +1235,87 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   guestBlocks.forEach((block, index) => {
     const breakfastSelect = block.querySelector(`select[name="guest${index + 1}-breakfast"]`);
     const breakfastValue = breakfastSelect.value;
-    const breakfastText = breakfastSelect.selectedOptions[0].textContent;
+    let breakfastText;
 
-    // Подсчет типов завтраков
-    if (breakfastValue === 'hearty') heartyCount++;
-    else if (breakfastValue === 'sweet') sweetCount++;
-    else if (breakfastValue === 'assorted') assortedCount++;
-    else if (breakfastValue === 'turkish') turkishCount++;
-
-    // Формирование состава
-    let guestOrder = `${index + 1}. ${breakfastText}`;
-    const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
-    if (porridge) {
-      const porridgeText = porridge.selectedOptions[0].textContent;
-      guestOrder += `, ${porridgeText}`;
+    // Усекаем наименования типов завтраков
+    switch (breakfastValue) {
+      case 'hearty':
+        breakfastText = currentLanguage === 'ru' ? 'Сытный' : 'Hearty';
+        heartyCount++;
+        break;
+      case 'sweet':
+        breakfastText = currentLanguage === 'ru' ? 'Сладкий' : 'Sweet';
+        sweetCount++;
+        break;
+      case 'assorted':
+        breakfastText = currentLanguage === 'ru' ? 'Ассорти' : 'Assorted';
+        assortedCount++;
+        break;
+      case 'turkish':
+        breakfastText = currentLanguage === 'ru' ? 'Турецкий' : 'Turkish';
+        turkishCount++;
+        break;
+      default:
+        breakfastText = '';
     }
 
-    const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
-    if (drink) {
-      guestOrder += `, ${drink.selectedOptions[0].textContent}`;
-    }
+// Формирование состава
+let guestOrder = `${index + 1}. ${breakfastText}`;
+const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
+if (porridge) guestOrder += `, ${porridge.selectedOptions[0].textContent}`;
 
-    const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
-    if (dish) {
-      guestOrder += `, ${dish.selectedOptions[0].textContent}`;
-    }
+const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
+if (drink) guestOrder += `, ${drink.selectedOptions[0].textContent}`;
 
-    const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
-    if (extras.length > 0) {
-      const extrasText = Array.from(extras).map(extra => extra.nextSibling.textContent.trim()).join(', ');
-      guestOrder += `, ${extrasText}`;
-    }
+const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
+if (dish) guestOrder += `, ${dish.selectedOptions[0].textContent}`;
 
-    if (comments) {
-      guestOrder += `, Комментарий: ${comments}`;
-    }
+// Добавление доп. позиций с красным цветом и меткой "(доп.)"
+const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
+if (extras.length > 0) {
+  const extrasText = Array.from(extras)
+    .map(extra => {
+      const label = extra.nextSibling.textContent.trim();
+      const nameOnly = label.split(' – ')[0]; // Убираем цену, оставляем только название
+      return `<span style="color:red">${nameOnly} (доп.)</span>`;
+    })
+    .join(', ');
+  guestOrder += `, ${extrasText}`;
+}
 
-    details += guestOrder + '\n';
+if (comments) guestOrder += `, Комментарий: ${comments}`;
+
+details += guestOrder + '\n';
+
+  // Данные для отправки в Google Таблицу
+  const data = {
+    date: dateValue,
+    time: time,
+    apartment: apartment,
+    guestCount: guestCount, // Передаем количество гостей
+    heartyCount: heartyCount,
+    sweetCount: sweetCount,
+    assortedCount: assortedCount,
+    turkishCount: turkishCount,
+    details: details.trim(),
+    language: currentLanguage === 'ru' ? 'Русский' : 'English',
+    fullName: `${firstName} ${lastName}`
+  };
+
+  // Отправка данных
+  fetch('YOUR_GOOGLE_SCRIPT_URL', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { 'Content-Type': 'application/json' },
+    mode: 'no-cors'
+  })
+  .then(() => {
+    alert('Спасибо! Ваш заказ отправлен!');
+  })
+  .catch(error => {
+    console.error('Ошибка:', error);
+    alert('Ошибка при отправке заказа.');
   });
-
-  // Формируем orderSummary для модального окна
-  let orderSummary = `<strong>${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}</strong><br><br>`;
-  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Имя' : 'First Name'}:</strong> ${escapeHtml(firstName)}<br>`;
-  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Фамилия' : 'Last Name'}:</strong> ${escapeHtml(lastName)}<br>`;
-  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Апартамент' : 'Apartment'}:</strong> ${escapeHtml(apartment)}<br>`;
-  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}:</strong> ${format}<br>`;
-  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}:</strong> ${dateValue}<br>`;
-  orderSummary += `<strong>${currentLanguage === 'ru' ? 'Время подачи' : 'Serving time'}:</strong> ${time}<br><br>`;
-  orderSummary += details.replace(/\n/g, '<br>');
-  if (comments && !details.includes('Комментарий')) {
-    orderSummary += `<br><strong>${currentLanguage === 'ru' ? 'Комментарии' : 'Comments'}:</strong> ${escapeHtml(comments)}<br>`;
-  }
-  orderSummary += `<br><strong>${currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'}</strong>`;
-
-  // Подтверждение и отправка в Google Таблицу
-  showConfirmModal(
-    orderSummary,
-    () => {
-      const data = {
-        date: dateValue,
-        time: time,
-        apartment: apartment,
-        heartyCount: heartyCount,
-        sweetCount: sweetCount,
-        assortedCount: assortedCount,
-        turkishCount: turkishCount,
-        details: details.trim(),
-        language: currentLanguage === 'ru' ? 'Русский' : 'English',
-        fullName: `${firstName} ${lastName}`
-      };
-
-      fetch('https://script.google.com/macros/s/AKfycby9xxWLVRTHg16bgDTooOmB713vXWOMD4168wG8rzT2YF1AodEJW51_mwc3MENKds_T/exec', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        mode: 'no-cors' // Add this
-      })
-      .then(response => response.text())
-      .then(result => {
-        if (result === 'Success') {
-          showModal(
-            currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!',
-            () => {
-              resetFormAfterSubmit();
-            }
-          );
-        } else {
-          showModal('Ошибка при отправке заказа. Попробуйте снова.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        showModal('Ошибка при отправке заказа. Проверьте подключение.');
-      });
-    },
-    () => {
-      // Ничего не делаем при отмене
-    }
-  );
 });
 </script>
 </body>
