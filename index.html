@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Заказ завтраков | ARTSTUDIO Nevsky</title>
-
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <style>
     /* Подключение шрифта Circe */
 @font-face {
@@ -492,7 +492,6 @@ h1#form-title {
   </div>
 </div>
 <script>
-
 function showModal(message, callback) {
   const overlay = document.getElementById('modal-overlay');
   const modalWindow = document.getElementById('modal-window');
@@ -503,7 +502,7 @@ function showModal(message, callback) {
   const extraButtons = modalWindow.querySelector('.modal-extra-buttons');
   if (extraButtons) extraButtons.remove();
 
-  modalMessage.innerHTML = message; // Изменено на innerHTML
+  modalMessage.innerHTML = message;
   overlay.style.display = 'flex';
   modalOkButton.style.display = 'inline-block';
 
@@ -519,10 +518,8 @@ function showConfirmModal(message, onConfirm, onCancel) {
   const modalMessage = document.getElementById('modal-message');
   const modalOkButton = document.getElementById('modal-ok-button');
 
-  // Убираем кнопку "Ок"
   modalOkButton.style.display = 'none';
 
-  // Удаляем старые дополнительные кнопки (если они есть)
   const oldExtraButtons = modalWindow.querySelector('.modal-extra-buttons');
   if (oldExtraButtons) oldExtraButtons.remove();
 
@@ -558,7 +555,7 @@ function showConfirmModal(message, onConfirm, onCancel) {
   confirmButtons.appendChild(yesButton);
   confirmButtons.appendChild(noButton);
 
-  modalMessage.innerHTML = message; // Изменено на innerHTML
+  modalMessage.innerHTML = message;
   modalWindow.appendChild(confirmButtons);
   overlay.style.display = 'flex';
 
@@ -577,8 +574,6 @@ function showConfirmModal(message, onConfirm, onCancel) {
   };
 }
 
-
-  
 let currentLanguage = 'ru';
 
 const firstNameInput = document.getElementById('first-name');
@@ -610,25 +605,7 @@ const breakfastOptions = [
   { value: 'assorted', ru: 'Ассорти завтрак – 1100₽', en: 'Assorted breakfast – 1100₽' },
   { value: 'turkish', ru: 'Турецкий завтрак – 1800₽ (только ресторан)', en: 'Turkish breakfast – 1800₽ (restaurant only)' },
 ];
-dateSelect.addEventListener('change', () => {
-  const now = new Date();
-  const utcHours = now.getUTCHours();
-  const moscowHours = (utcHours + 3) % 24;
-  const moscowMinutes = now.getUTCMinutes();
-  const currentTime = moscowHours * 60 + moscowMinutes;
-  const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве
 
-  if (formatSelectEl.value === 'restaurant' && dateSelect.value === 'today' && currentTime > restaurantCutoffTime) {
-    showModal(
-      currentLanguage === 'ru'
-        ? 'Заказ в ресторане после 11:30 доступен только на завтра. Пожалуйста, выберите другую дату.'
-        : 'Restaurant orders after 11:30 are available only for tomorrow. Please select another date.',
-      () => {
-        dateSelect.value = 'tomorrow';
-      }
-    );
-  }
-});
 const breakfastDescriptions = {
   hearty: {
     ru: "Глазунья с сосисками, сыр, овощная нарезка, каша и напиток на выбор",
@@ -674,23 +651,24 @@ const extras = [
   { value: 'salmon', ru: 'Лосось – 250₽', en: 'Salmon – 250₽' },
   { value: 'alt_milk', ru: 'Альтернативное молоко (кокосовое) – 150₽', en: 'Alternative milk (coconut) – 150₽' },
 ];
+
 const translations = {
   ru: {
     formTitle: 'Заказ завтраков',
-    firstNameTitle: 'Имя', // Добавлено
-    firstNamePlaceholder: 'Введите имя', // Добавлено
-    lastNameTitle: 'Фамилия', // Добавлено
-    lastNamePlaceholder: 'Введите фамилию', // Добавлено
+    firstNameTitle: 'Имя',
+    firstNamePlaceholder: 'Введите имя',
+    lastNameTitle: 'Фамилия',
+    lastNamePlaceholder: 'Введите фамилию',
     apartmentTitle: 'Номер апартамента',
     apartmentPlaceholder: 'Введите номер апартамента',
     formatTitle: 'Формат подачи',
     formatPlaceholder: 'Выберите формат подачи',
     formatRestaurant: 'В ресторане',
     formatLunchbox: 'Ланчбокс',
-    dateTitle: 'Дата подачи', // Добавлено
-    datePlaceholder: 'Выберите дату подачи', // Добавлено
-    dateToday: 'Сегодня', // Добавлено
-    dateTomorrow: 'Завтра', // Добавлено
+    dateTitle: 'Дата подачи',
+    datePlaceholder: 'Выберите дату подачи',
+    dateToday: 'Сегодня',
+    dateTomorrow: 'Завтра',
     timeTitle: 'Время подачи',
     guestsTitle: 'Количество гостей',
     guestsPlaceholder: 'Выберите количество гостей',
@@ -700,20 +678,20 @@ const translations = {
   },
   en: {
     formTitle: 'Breakfast Order',
-    firstNameTitle: 'First Name', // Добавлено
-    firstNamePlaceholder: 'Enter first name', // Добавлено
-    lastNameTitle: 'Last Name', // Добавлено
-    lastNamePlaceholder: 'Enter last name', // Добавлено
+    firstNameTitle: 'First Name',
+    firstNamePlaceholder: 'Enter first name',
+    lastNameTitle: 'Last Name',
+    lastNamePlaceholder: 'Enter last name',
     apartmentTitle: 'Apartment Number',
     apartmentPlaceholder: 'Enter apartment number',
     formatTitle: 'Serving format',
     formatPlaceholder: 'Select serving format',
     formatRestaurant: 'At the restaurant',
     formatLunchbox: 'Lunchbox',
-    dateTitle: 'Serving date', // Добавлено
-    datePlaceholder: 'Select serving date', // Добавлено
-    dateToday: 'Today', // Добавлено
-    dateTomorrow: 'Tomorrow', // Добавлено
+    dateTitle: 'Serving date',
+    datePlaceholder: 'Select serving date',
+    dateToday: 'Today',
+    dateTomorrow: 'Tomorrow',
     timeTitle: 'Serving time',
     guestsTitle: 'Number of guests',
     guestsPlaceholder: 'Select number of guests',
@@ -730,32 +708,84 @@ function formatDate(date) {
   const year = date.getFullYear();
   return `${day}.${month}.${year}`;
 }
-  
+
+// Функция для обновления доступности ланчбокса (перемещена вверх)
+function updateLunchboxAvailability() {
+  const now = new Date();
+  const utcHours = now.getUTCHours();
+  const moscowHours = (utcHours + 3) % 24;
+  const moscowMinutes = now.getUTCMinutes();
+  const currentTime = moscowHours * 60 + moscowMinutes;
+  const lunchboxCutoffTime = 20 * 60; // 20:00 по Москве
+  const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве
+
+  const lunchboxOption = formatSelectEl.querySelector('option[value="lunchbox"]');
+  const dateTodayOption = dateSelect.querySelector('option[value="today"]');
+  const dateTomorrowOption = dateSelect.querySelector('option[value="tomorrow"]');
+
+  if (lunchboxOption) {
+    if (currentTime > lunchboxCutoffTime) {
+      lunchboxOption.disabled = true;
+      lunchboxOption.style.color = '#999';
+      lunchboxOption.title = currentLanguage === 'ru'
+        ? 'Ланчбокс заказывается до 20:00 по московскому времени. Пожалуйста, уточните на ресепшене.'
+        : 'Lunchbox orders must be placed before 8 PM Moscow time. Please ask at the reception.';
+      if (formatSelectEl.value === 'lunchbox') {
+        formatSelectEl.value = '';
+        formatInfoEl.textContent = currentLanguage === 'ru'
+          ? 'Выберите формат подачи'
+          : 'Select serving format';
+        timeSection.style.display = 'none';
+        dateSection.style.display = 'none';
+      }
+    } else {
+      lunchboxOption.disabled = false;
+      lunchboxOption.style.color = '';
+      lunchboxOption.title = '';
+    }
+  }
+
+  if (formatSelectEl.value === 'restaurant' && dateTodayOption && dateTomorrowOption) {
+    if (currentTime > restaurantCutoffTime) {
+      dateTodayOption.disabled = true;
+      dateTodayOption.style.color = '#999';
+      dateTodayOption.title = currentLanguage === 'ru'
+        ? 'Заказ в ресторане после 11:30 доступен только на завтра.'
+        : 'Restaurant orders after 11:30 are available only for tomorrow.';
+      if (dateSelect.value === 'today') {
+        dateSelect.value = 'tomorrow';
+      }
+    } else {
+      dateTodayOption.disabled = false;
+      dateTodayOption.style.color = '';
+      dateTodayOption.title = '';
+    }
+  }
+}
+
 // Обновление текстов при смене языка
 function updateTexts() {
   const t = translations[currentLanguage];
 
   formTitle.textContent = t.formTitle;
-  firstNameTitle.textContent = t.firstNameTitle; // Добавлено
-  firstNameInput.placeholder = t.firstNamePlaceholder; // Добавлено
-  lastNameTitle.textContent = t.lastNameTitle; // Добавлено
-  lastNameInput.placeholder = t.lastNamePlaceholder; // Добавлено
+  firstNameTitle.textContent = t.firstNameTitle;
+  firstNameInput.placeholder = t.firstNamePlaceholder;
+  lastNameTitle.textContent = t.lastNameTitle;
+  lastNameInput.placeholder = t.lastNamePlaceholder;
   apartmentTitle.textContent = t.apartmentTitle;
   apartmentNumber.placeholder = t.apartmentPlaceholder;
   document.getElementById('format-title').textContent = t.formatTitle;
-  document.getElementById('date-title').textContent = t.dateTitle; // Добавлено
+  document.getElementById('date-title').textContent = t.dateTitle;
   document.getElementById('time-title').textContent = t.timeTitle;
   document.getElementById('guests-title').textContent = t.guestsTitle;
   document.getElementById('comments-title').textContent = t.commentsTitle;
 
-  // Обновление опций для формата подачи
   if (formatSelectEl.options.length >= 3) {
     formatSelectEl.options[0].textContent = t.formatPlaceholder;
     formatSelectEl.options[1].textContent = t.formatRestaurant;
     formatSelectEl.options[2].textContent = t.formatLunchbox;
   }
 
-  // Обновление опций для даты подачи
   if (dateSelect.options.length >= 3) {
     dateSelect.options[0].textContent = t.datePlaceholder;
     dateSelect.options[1].textContent = t.dateToday;
@@ -769,7 +799,6 @@ function updateTexts() {
   commentsField.placeholder = t.commentsPlaceholder;
   submitButton.textContent = t.submitButton;
 
-  // Переключение вступительного текста
   if (currentLanguage === 'ru') {
     introRu.style.display = 'block';
     introEn.style.display = 'none';
@@ -777,7 +806,7 @@ function updateTexts() {
     introRu.style.display = 'none';
     introEn.style.display = 'block';
   }
-  
+
   translateStaticTexts();
 
   if (guestsCount.value) {
@@ -792,31 +821,27 @@ function updateTexts() {
   }
 }
 
-
 function translateStaticTexts() {
   const t = translations[currentLanguage];
-
   document.getElementById('format-title').textContent = t.formatTitle;
   document.getElementById('time-title').textContent = t.timeTitle;
   document.getElementById('guests-title').textContent = t.guestsTitle;
 }
+
 function regenerateGuests() {
   const guestBlocks = guestsDetails.querySelectorAll('.form-section');
 
   guestBlocks.forEach((block, index) => {
-    // Заголовок гостя
     const guestTitle = block.querySelector(`#guest${index + 1}-title`);
     if (guestTitle) {
       guestTitle.textContent = currentLanguage === 'ru' ? `Гость ${index + 1}` : `Guest ${index + 1}`;
     }
 
-    // Лейбл выбора завтрака
     const breakfastLabel = block.querySelector(`#breakfast${index + 1}-label`);
     if (breakfastLabel) {
       breakfastLabel.textContent = currentLanguage === 'ru' ? 'Выберите тип завтрака' : 'Select breakfast type';
     }
 
-    // Селектор завтраков
     const breakfastSelect = block.querySelector(`select[name="guest${index + 1}-breakfast"]`);
     if (breakfastSelect) {
       const selectedValue = breakfastSelect.value;
@@ -827,7 +852,6 @@ function regenerateGuests() {
       ).join('');
     }
 
-    // Описание завтрака
     const breakfastDesc = block.querySelector(`#breakfast-desc${index + 1}`);
     if (breakfastDesc && breakfastSelect) {
       const description = breakfastDescriptions[breakfastSelect.value];
@@ -836,7 +860,6 @@ function regenerateGuests() {
         : '';
     }
 
-    // Дополнительные опции: каша, напиток, блюдо
     const extraOptions = block.querySelector(`#extra-options-${index + 1}`);
     if (extraOptions) {
       const selects = extraOptions.querySelectorAll('select');
@@ -880,7 +903,6 @@ function regenerateGuests() {
       });
     }
 
-    // Дополнительно (checkboxes)
     const extrasSection = block.querySelector(`#extras-${index + 1}`);
     if (extrasSection) {
       extrasSection.innerHTML = '';
@@ -903,8 +925,9 @@ function regenerateGuests() {
       });
     }
   });
-  
 }
+
+// Вызов updateLunchboxAvailability при загрузке страницы
 window.addEventListener('load', () => {
   updateLunchboxAvailability();
 });
@@ -919,6 +942,7 @@ enBtn.addEventListener('click', () => {
   currentLanguage = 'en';
   updateTexts();
 });
+
 // Генерация блоков гостей
 guestsCount.addEventListener('change', () => {
   guestsDetails.innerHTML = '';
@@ -941,72 +965,12 @@ guestsCount.addEventListener('change', () => {
       `;
 
       guestsDetails.appendChild(guestBlock);
-updateTurkishBreakfastAvailability();
+      updateTurkishBreakfastAvailability();
 
       const breakfastSelect = document.getElementById(`breakfast${i}`);
       const breakfastDesc = document.getElementById(`breakfast-desc${i}`);
       const extraOptions = document.getElementById(`extra-options-${i}`);
       const extrasDiv = document.getElementById(`extras-${i}`);
-      
-function updateLunchboxAvailability() {
-  const now = new Date();
-  const utcHours = now.getUTCHours(); // Часы по UTC
-  const moscowHours = (utcHours + 3) % 24; // Плюс 3 часа для Москвы
-  const moscowMinutes = now.getUTCMinutes(); // Минуты те же
-
-  const currentTime = moscowHours * 60 + moscowMinutes;
-  const lunchboxCutoffTime = 20 * 60; // 20:00 по Москве = 1200 минут
-  const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве = 690 минут
-
-  const lunchboxOption = formatSelectEl.querySelector('option[value="lunchbox"]');
-  const dateTodayOption = dateSelect.querySelector('option[value="today"]');
-  const dateTomorrowOption = dateSelect.querySelector('option[value="tomorrow"]');
-
-  // Проверка для ланчбокса
-  if (lunchboxOption) {
-    if (currentTime > lunchboxCutoffTime) {
-      lunchboxOption.disabled = true;
-      lunchboxOption.style.color = '#999';
-      lunchboxOption.title = currentLanguage === 'ru'
-        ? 'Ланчбокс заказывается до 20:00 по московскому времени. Пожалуйста, уточните на ресепшене.'
-        : 'Lunchbox orders must be placed before 8 PM Moscow time. Please ask at the reception.';
-      
-      // Если "Ланчбокс" сейчас выбран — сбросить формат и очистить время
-      if (formatSelectEl.value === 'lunchbox') {
-        formatSelectEl.value = '';
-        formatInfoEl.textContent = currentLanguage === 'ru'
-          ? 'Выберите формат подачи'
-          : 'Select serving format';
-        timeSection.style.display = 'none';
-        dateSection.style.display = 'none';
-      }
-    } else {
-      lunchboxOption.disabled = false;
-      lunchboxOption.style.color = '';
-      lunchboxOption.title = '';
-    }
-  }
-
-  // Проверка для ресторана после 11:30
-  if (formatSelectEl.value === 'restaurant' && dateTodayOption && dateTomorrowOption) {
-    if (currentTime > restaurantCutoffTime) {
-      dateTodayOption.disabled = true;
-      dateTodayOption.style.color = '#999';
-      dateTodayOption.title = currentLanguage === 'ru'
-        ? 'Заказ в ресторане после 11:30 доступен только на завтра.'
-        : 'Restaurant orders after 11:30 are available only for tomorrow.';
-      if (dateSelect.value === 'today') {
-        dateSelect.value = 'tomorrow';
-      }
-    } else {
-      dateTodayOption.disabled = false;
-      dateTodayOption.style.color = '';
-      dateTodayOption.title = '';
-    }
-  }
-}
-
-
 
       function renderExtras() {
         extrasDiv.innerHTML = '';
@@ -1088,11 +1052,11 @@ function updateLunchboxAvailability() {
       });
 
       breakfastSelect.dispatchEvent(new Event('change'));
-updateTurkishBreakfastAvailability();
-
+      updateTurkishBreakfastAvailability();
     }
   }
 });
+
 function updateTurkishBreakfastAvailability() {
   const breakfastSelects = guestsDetails.querySelectorAll('select[name^="guest"][name$="-breakfast"]');
   breakfastSelects.forEach(select => {
@@ -1112,7 +1076,7 @@ function updateTurkishBreakfastAvailability() {
     }
   });
 }
-  // Обновление выбора даты по умолчанию
+
 function updateDefaultDate() {
   const now = new Date();
   const utcHours = now.getUTCHours();
@@ -1123,6 +1087,7 @@ function updateDefaultDate() {
 
   dateSelect.value = currentTime <= restaurantCutoffTime ? 'today' : 'tomorrow';
 }
+
 formatSelectEl.addEventListener('change', () => {
   const now = new Date();
   const utcHours = now.getUTCHours();
@@ -1132,18 +1097,16 @@ formatSelectEl.addEventListener('change', () => {
   const lunchboxCutoffTime = 20 * 60; // 20:00 по Москве
   const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве
 
-  timeSelect.innerHTML = ''; // Очищаем старые опции
+  timeSelect.innerHTML = '';
 
   dateSection.style.display = formatSelectEl.value ? 'block' : 'none';
 
-  // Установка даты по умолчанию в зависимости от времени
   if (currentTime <= restaurantCutoffTime) {
-    dateSelect.value = 'today'; // До 11:30 — "Сегодня"
+    dateSelect.value = 'today';
   } else {
-    dateSelect.value = 'tomorrow'; // После 11:30 — "Завтра"
+    dateSelect.value = 'tomorrow';
   }
 
-  // Проверка на ланчбокс поздно вечером
   if (formatSelectEl.value === 'lunchbox' && currentTime > lunchboxCutoffTime) {
     showModal(
       currentLanguage === 'ru'
@@ -1157,18 +1120,15 @@ formatSelectEl.addEventListener('change', () => {
     return;
   }
 
-  // Проверка на ланчбокс с 00:00 до 11:30
   if (formatSelectEl.value === 'lunchbox' && currentTime <= restaurantCutoffTime) {
     showConfirmModal(
       currentLanguage === 'ru'
         ? 'Ланчбокс готовят с вечера. Если на следующий день вам нужно позавтракать раньше, чем открывается ресторан, подача будет сегодня с 20:00. Вы уверены?'
         : 'Lunchboxes are prepared in the evening. If you need breakfast before the restaurant opens the next day, it will be served today from 8:00 PM. Are you sure?',
       () => {
-        // Пользователь подтвердил — оставляем ланчбокс
         updateFormatOptions();
       },
       () => {
-        // Пользователь отменил — переключаем на ресторан
         formatSelectEl.value = 'restaurant';
         formatSelectEl.dispatchEvent(new Event('change'));
       }
@@ -1176,7 +1136,6 @@ formatSelectEl.addEventListener('change', () => {
     return;
   }
 
-  // Обновление опций формата
   updateFormatOptions();
 
   function updateFormatOptions() {
@@ -1215,12 +1174,33 @@ formatSelectEl.addEventListener('change', () => {
       timeSection.style.display = 'none';
     }
 
-    updateLunchboxAvailability(); // Обновляем доступность дат
+    updateLunchboxAvailability();
   }
 });
+
+dateSelect.addEventListener('change', () => {
+  const now = new Date();
+  const utcHours = now.getUTCHours();
+  const moscowHours = (utcHours + 3) % 24;
+  const moscowMinutes = now.getUTCMinutes();
+  const currentTime = moscowHours * 60 + moscowMinutes;
+  const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве
+
+  if (formatSelectEl.value === 'restaurant' && dateSelect.value === 'today' && currentTime > restaurantCutoffTime) {
+    showModal(
+      currentLanguage === 'ru'
+        ? 'Заказ в ресторане после 11:30 доступен только на завтра. Пожалуйста, выберите другую дату.'
+        : 'Restaurant orders after 11:30 are available only for tomorrow. Please select another date.',
+      () => {
+        dateSelect.value = 'tomorrow';
+      }
+    );
+  }
+});
+
 function resetFormAfterSubmit() {
-  firstNameInput.value = ''; // Добавлено
-  lastNameInput.value = ''; // Добавлено
+  firstNameInput.value = '';
+  lastNameInput.value = '';
   apartmentNumber.value = '';
   formatSelectEl.selectedIndex = 0;
   timeSelect.innerHTML = '';
@@ -1231,10 +1211,9 @@ function resetFormAfterSubmit() {
   commentsField.value = '';
 }
 
-
 // Функция для экранирования HTML
 function escapeHtml(text) {
-  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' };
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
@@ -1247,7 +1226,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const lastName = lastNameInput.value.trim();
   const apartment = apartmentNumber.value.trim();
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
-  const formatValue = formatSelectEl.value; // "restaurant" или "lunchbox"
+  const formatValue = formatSelectEl.value;
   const dateOption = dateSelect.value;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const guestsCountValue = guestsCount.value;
@@ -1271,7 +1250,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   let assortedCount = 0;
   let turkishCount = 0;
   let orderSummary = `<strong>${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}</strong><br><br>`;
-  let detailsForSheet = ''; // Для Google Таблицы — всегда на русском
+  let detailsForSheet = '';
 
   const guestOrders = [];
   const guestBlocks = guestsDetails.querySelectorAll('.form-section');
@@ -1280,7 +1259,6 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     const breakfastValue = breakfastSelect.value;
     let breakfastText, breakfastTextFull, breakfastTextForSheet;
 
-    // Для Google Таблицы всегда на русском
     switch (breakfastValue) {
       case 'hearty':
         breakfastText = currentLanguage === 'ru' ? 'Сытный' : 'Hearty';
@@ -1320,10 +1298,10 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       if (porridge.value !== 'none') {
         const porridgeText = porridge.selectedOptions[0].textContent;
         const porridgeTextForSheet = porridges.find(p => p.value === porridge.value)?.ru || porridgeText;
-        guestOrder += `, ${porridgeText}`; // В модалке добавляем только если выбрано
+        guestOrder += `, ${porridgeText}`;
         guestOrderForSheet += `, ${porridgeTextForSheet}`;
       } else {
-        guestOrderForSheet += `, без каши`; // В Google Таблице добавляем "без каши", если не выбрано
+        guestOrderForSheet += `, без каши`;
       }
     }
 
@@ -1349,19 +1327,28 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     if (extras.length > 0) {
       extrasText = Array.from(extras)
         .map(extra => {
-          const label = extra.nextSibling.textContent.trim();
-          const nameOnly = label.split(' – ')[0];
+          const label = extra.nextSibling && extra.nextSibling.textContent ? extra.nextSibling.textContent.trim() : '';
+          const nameOnly = label.split(' – ')[0] || '';
           const extraLabel = currentLanguage === 'ru' ? '(доп.)' : '(extra)';
           return `<span style="color:red">${nameOnly} ${extraLabel}</span>`;
         })
         .join(', ');
+
       extrasTextForSheet = Array.from(extras)
         .map(extra => {
           const extraValue = extra.value;
-          const extraTextForSheet = extras.find(e => e.value === extraValue)?.ru.split(' – ')[0] || extra.nextSibling.textContent.trim().split(' – ')[0];
+          // Проверка, что extras является массивом и содержит элементы
+          if (!Array.isArray(extras) || extras.length === 0) {
+            console.error('Ошибка: extras не является массивом или пуст', extras);
+            return '';
+          }
+          const extraTextForSheet = extras.find(e => e.value === extraValue)?.ru.split(' – ')[0] || 
+                                   (extra.nextSibling && extra.nextSibling.textContent ? extra.nextSibling.textContent.trim().split(' – ')[0] : '');
           return `${extraTextForSheet} (доп.)`;
         })
+        .filter(item => item !== '') // Убираем пустые элементы
         .join(', ');
+
       guestOrder += `, ${extrasText}`;
       guestOrderForSheet += `, ${extrasTextForSheet}`;
     }
@@ -1393,7 +1380,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       guestCount: guestsCountValue,
       heartyCount: heartyCount,
       sweetCount: sweetCount,
-      assortedCount: assortedCount,
+      assortedCount: assembledCount,
       turkishCount: turkishCount,
       details: detailsForSheet.trim(),
       language: currentLanguage === 'ru' ? 'рус.' : 'англ.',
