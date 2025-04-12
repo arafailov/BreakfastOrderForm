@@ -1212,17 +1212,33 @@ function escapeHtml(text) {
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
-  // Получаем данные из формы с правильными ID
-  const dateValue = document.getElementById('date-select').value;
-  const time = document.getElementById('time-select').value;
-  const apartment = document.getElementById('apartment-number').value;
-  const guestsCount = document.getElementById('guests-count');
-  const guestCount = guestsCount.value;
-  const guestsDetails = document.getElementById('guests-details');
-  const firstName = document.getElementById('first-name').value;
-  const lastName = document.getElementById('last-name').value;
-  const comments = document.getElementById('comments')?.value || '';
-  const currentLanguage = document.querySelector('html').lang || 'ru';
+  // Получаем данные из формы
+  const firstName = firstNameInput.value.trim();
+  const lastName = lastNameInput.value.trim();
+  const apartment = apartmentNumber.value.trim();
+  const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
+  const dateOption = dateSelect.value;
+  const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
+  const guestsCountValue = guestsCount.value;
+  const comments = commentsField.value.trim();
+
+  // Проверка обязательных полей
+  if (!firstName || !lastName || !apartment || !format || !dateOption || !time || !guestsCountValue) {
+    showModal('Пожалуйста, заполните все обязательные поля.');
+    return;
+  }
+
+  // Конвертация даты в формат дд.мм.гггг
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  };
+  const dateValue = dateOption === 'today' ? formatDate(today) : formatDate(tomorrow);
 
   // Подсчет типов завтраков и формирование состава
   let heartyCount = 0;
@@ -1237,29 +1253,27 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     const breakfastValue = breakfastSelect.value;
     let breakfastText;
 
-    // Усекаем наименования типов завтраков
     switch (breakfastValue) {
       case 'hearty':
-        breakfastText = currentLanguage === 'ru' ? 'Сытный' : 'Hearty';
+        breakfastText = 'Сытный';
         heartyCount++;
         break;
       case 'sweet':
-        breakfastText = currentLanguage === 'ru' ? 'Сладкий' : 'Sweet';
+        breakfastText = 'Сладкий';
         sweetCount++;
         break;
       case 'assorted':
-        breakfastText = currentLanguage === 'ru' ? 'Ассорти' : 'Assorted';
+        breakfastText = 'Ассорти';
         assortedCount++;
         break;
       case 'turkish':
-        breakfastText = currentLanguage === 'ru' ? 'Турецкий' : 'Turkish';
+        breakfastText = 'Турецкий';
         turkishCount++;
         break;
       default:
         breakfastText = '';
     }
 
-    // Формирование состава
     let guestOrder = `${index + 1}. ${breakfastText}`;
     const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
     if (porridge) guestOrder += `, ${porridge.selectedOptions[0].textContent}`;
@@ -1270,7 +1284,6 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
     if (dish) guestOrder += `, ${dish.selectedOptions[0].textContent}`;
 
-    // Добавление доп. позиций с красным цветом и меткой "(доп.)"
     const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
     if (extras.length > 0) {
       const extrasText = Array.from(extras)
@@ -1284,41 +1297,79 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     }
 
     if (comments) guestOrder += `, Комментарий: ${comments}`;
+    details += guestOrder + '<br>';
+  });
 
-    details += guestOrder + '\n';
-  }); // Добавлена закрывающая скобка для forEach
+  // Формируем orderSummary для модального окна
+  let orderSummary = `<strong>Ваш заказ:</strong><br><br>`;
+  orderSummary += `<strong>Имя:</strong> ${escapeHtml(firstName)}<br>`;
+  orderSummary += `<strong>Фамилия:</strong> ${escapeHtml(lastName)}<br>`;
+  orderSummary += `<strong>Апартамент:</strong> ${escapeHtml(apartment)}<br>`;
+  orderSummary += `<strong>Формат подачи:</strong> ${format}<br>`;
+  orderSummary += `<strong>Дата подачи:</strong> ${dateValue}<br>`;
+  orderSummary += `<strong>Время подачи:</strong> ${time}<br>`;
+  orderSummary += `<strong>Количество гостей:</strong> ${guestsCountValue}<br><br>`;
 
-  // Данные для отправки в Google Таблицу
-  const data = {
-    date: dateValue,
-    time: time,
-    apartment: apartment,
-    guestCount: guestCount,
-    heartyCount: heartyCount,
-    sweetCount: sweetCount,
-    assortedCount: assortedCount,
-    turkishCount: turkishCount,
-    details: details.trim(),
-    language: currentLanguage === 'ru' ? 'Русский' : 'English',
-    fullName: `${firstName} ${lastName}`
-  };
+  // Добавляем типы завтраков, только если их количество больше 0
+  if (heartyCount > 0) orderSummary += `<strong>Сытный:</strong> ${heartyCount}<br>`;
+  if (sweetCount > 0) orderSummary += `<strong>Сладкий:</strong> ${sweetCount}<br>`;
+  if (assortedCount > 0) orderSummary += `<strong>Ассорти:</strong> ${assortedCount}<br>`;
+  if (turkishCount > 0) orderSummary += `<strong>Турецкий:</strong> ${turkishCount}<br>`;
 
-  // Отправка данных
-  fetch('https://script.google.com/macros/s/AKfycby9xxWLVRTHg16bgDTooOmB713vXWOMD4168wG8rzT2YF1AodEJW51_mwc3MENKds_T/exec', {
-    method: 'POST',
-    body: JSON.stringify(data),
-    headers: { 'Content-Type': 'application/json' },
-    mode: 'no-cors'
-  })
-  .then(() => {
-    showModal('Спасибо! Ваш заказ отправлен!');
-    resetFormAfterSubmit(); // Сброс формы после успешной отправки
-  })
-  .catch(error => {
-    console.error('Ошибка:', error);
-    showModal('Ошибка при отправке заказа.');
+  orderSummary += `<br>${details}`;
+  if (comments) orderSummary += `<br><strong>Комментарии:</strong> ${escapeHtml(comments)}<br>`;
+  orderSummary += `<br><strong>Подтвердить заказ?</strong>`;
+
+  // Показываем модальное окно для подтверждения
+  showConfirmModal(orderSummary, () => {
+    // Отправка данных в Google Таблицу
+    const data = {
+      date: dateValue,
+      time: time,
+      apartment: apartment,
+      guestCount: guestsCountValue,
+      heartyCount: heartyCount,
+      sweetCount: sweetCount,
+      assortedCount: assortedCount,
+      turkishCount: turkishCount,
+      details: details.trim(),
+      language: 'Русский',
+      fullName: `${firstName} ${lastName}`
+    };
+
+    fetch('https://script.google.com/macros/s/AKfycby9xxWLVRTHg16bgDTooOmB713vXWOMD4168wG8rzT2YF1AodEJW51_mwc3MENKds_T/exec', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+      mode: 'no-cors'
+    })
+    .then(() => {
+      showModal('Спасибо! Ваш заказ отправлен!', () => {
+        resetFormAfterSubmit();
+      });
+    })
+    .catch(error => {
+      console.error('Ошибка:', error);
+      showModal('Ошибка при отправке заказа.');
+    });
+  }, () => {
+    // Ничего не делаем при отмене
   });
 });
+
+// Функция для экранирования HTML
+function escapeHtml(text) {
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Функция полного сброса формы
+function resetFormAfterSubmit() {
+  document.getElementById('breakfast-form').reset();
+  guestsDetails.innerHTML = '';
+  dateSection.style.display = 'none';
+  timeSection.style.display = 'none';
+}
 </script>
 </body>
 </html>
