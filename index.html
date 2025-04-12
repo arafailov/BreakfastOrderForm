@@ -1217,7 +1217,6 @@ function escapeHtml(text) {
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-// Обработчик отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -1228,7 +1227,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const formatValue = formatSelectEl.value;
   const dateOption = dateSelect.value;
-  const time = timeSelect.options[timeSelectEl.selectedIndex]?.text || '';
+  const time = timeSelect.options[timeSelect.selectedIndex]?.text || ''; // Исправлено: timeSelectEl на timeSelect
   const guestsCountValue = guestsCount.value;
   const comments = commentsField.value.trim();
 
@@ -1321,7 +1320,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       guestOrderForSheet += `, ${dishTextForSheet}`;
     }
 
-    const selectedExtras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`); // Переименовано в selectedExtras
+    const selectedExtras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
     let extrasText = '';
     let extrasTextForSheet = '';
     if (selectedExtras.length > 0) {
@@ -1341,7 +1340,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
                                    (extra.nextSibling && extra.nextSibling.textContent ? extra.nextSibling.textContent.trim().split(' – ')[0] : '');
           return extraTextForSheet ? `${extraTextForSheet} (доп.)` : '';
         })
-        .filter(item => item !== '') // Убираем пустые элементы
+        .filter(item => item !== '')
         .join(', ');
 
       guestOrder += `, ${extrasText}`;
@@ -1357,7 +1356,6 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     detailsForSheet += guestOrderForSheet + '\n';
   });
 
-  // Формируем orderSummary для модального окна
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Имя' : 'Name'}:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Номер' : 'Apartment'}:</strong> ${escapeHtml(apartment)}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Дата и время заказа' : 'Date and time'}:</strong> ${dateValue}, ${time}<br>`;
@@ -1365,9 +1363,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   orderSummary += guestOrders.join('<br>');
   orderSummary += `<br><br><strong>${currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm order?'}</strong>`;
 
-  // Показываем модальное окно для подтверждения
   showConfirmModal(orderSummary, () => {
-    // Отправка данных в Google Таблицу
     const data = {
       date: dateValue,
       time: time,
@@ -1375,7 +1371,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       guestCount: guestsCountValue,
       heartyCount: heartyCount,
       sweetCount: sweetCount,
-      assortedCount: assortedCount, // Исправлено: assembledCount на assortedCount
+      assortedCount: assortedCount,
       turkishCount: turkishCount,
       details: detailsForSheet.trim(),
       language: currentLanguage === 'ru' ? 'рус.' : 'англ.',
@@ -1400,9 +1396,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       console.error('Ошибка:', error);
       showModal(currentLanguage === 'ru' ? 'Ошибка при отправке заказа.' : 'Error sending order.');
     });
-  }, () => {
-    // Ничего не делаем при отмене
-  });
+  }, () => {});
 });
 </script>
 </body>
