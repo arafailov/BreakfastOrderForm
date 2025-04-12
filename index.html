@@ -1228,7 +1228,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const formatValue = formatSelectEl.value;
   const dateOption = dateSelect.value;
-  const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
+  const time = timeSelect.options[timeSelectEl.selectedIndex]?.text || '';
   const guestsCountValue = guestsCount.value;
   const comments = commentsField.value.trim();
 
@@ -1321,11 +1321,11 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       guestOrderForSheet += `, ${dishTextForSheet}`;
     }
 
-    const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
+    const selectedExtras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`); // Переименовано в selectedExtras
     let extrasText = '';
     let extrasTextForSheet = '';
-    if (extras.length > 0) {
-      extrasText = Array.from(extras)
+    if (selectedExtras.length > 0) {
+      extrasText = Array.from(selectedExtras)
         .map(extra => {
           const label = extra.nextSibling && extra.nextSibling.textContent ? extra.nextSibling.textContent.trim() : '';
           const nameOnly = label.split(' – ')[0] || '';
@@ -1334,17 +1334,12 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
         })
         .join(', ');
 
-      extrasTextForSheet = Array.from(extras)
+      extrasTextForSheet = Array.from(selectedExtras)
         .map(extra => {
           const extraValue = extra.value;
-          // Проверка, что extras является массивом и содержит элементы
-          if (!Array.isArray(extras) || extras.length === 0) {
-            console.error('Ошибка: extras не является массивом или пуст', extras);
-            return '';
-          }
           const extraTextForSheet = extras.find(e => e.value === extraValue)?.ru.split(' – ')[0] || 
                                    (extra.nextSibling && extra.nextSibling.textContent ? extra.nextSibling.textContent.trim().split(' – ')[0] : '');
-          return `${extraTextForSheet} (доп.)`;
+          return extraTextForSheet ? `${extraTextForSheet} (доп.)` : '';
         })
         .filter(item => item !== '') // Убираем пустые элементы
         .join(', ');
@@ -1380,7 +1375,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       guestCount: guestsCountValue,
       heartyCount: heartyCount,
       sweetCount: sweetCount,
-      assortedCount: assembledCount,
+      assortedCount: assortedCount, // Исправлено: assembledCount на assortedCount
       turkishCount: turkishCount,
       details: detailsForSheet.trim(),
       language: currentLanguage === 'ru' ? 'рус.' : 'англ.',
