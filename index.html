@@ -1234,11 +1234,11 @@ function resetFormAfterSubmit() {
 
 // Функция для экранирования HTML
 function escapeHtml(text) {
-  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' };
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-// Обработчик отправки формы
+// Обновленный обработчик отправки формы
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -1247,6 +1247,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const lastName = lastNameInput.value.trim();
   const apartment = apartmentNumber.value.trim();
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
+  const formatValue = formatSelectEl.value; // "restaurant" или "lunchbox"
   const dateOption = dateSelect.value;
   const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const guestsCountValue = guestsCount.value;
@@ -1270,63 +1271,72 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   let assortedCount = 0;
   let turkishCount = 0;
   let orderSummary = `<strong>${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}</strong><br><br>`;
-  let detailsForSheet = '';
+  let detailsForSheet = ''; // Для Google Таблицы — всегда на русском
 
   const guestOrders = [];
   const guestBlocks = guestsDetails.querySelectorAll('.form-section');
   guestBlocks.forEach((block, index) => {
     const breakfastSelect = block.querySelector(`select[name="guest${index + 1}-breakfast"]`);
     const breakfastValue = breakfastSelect.value;
-    let breakfastText, breakfastTextFull;
+    let breakfastText, breakfastTextFull, breakfastTextForSheet;
 
+    // Для Google Таблицы всегда на русском
     switch (breakfastValue) {
       case 'hearty':
         breakfastText = currentLanguage === 'ru' ? 'Сытный' : 'Hearty';
         breakfastTextFull = currentLanguage === 'ru' ? 'Сытный завтрак' : 'Hearty breakfast';
+        breakfastTextForSheet = 'Сытный';
         heartyCount++;
         break;
       case 'sweet':
         breakfastText = currentLanguage === 'ru' ? 'Сладкий' : 'Sweet';
         breakfastTextFull = currentLanguage === 'ru' ? 'Сладкий завтрак' : 'Sweet breakfast';
+        breakfastTextForSheet = 'Сладкий';
         sweetCount++;
         break;
       case 'assorted':
         breakfastText = currentLanguage === 'ru' ? 'Ассорти' : 'Assorted';
         breakfastTextFull = currentLanguage === 'ru' ? 'Ассорти завтрак' : 'Assorted breakfast';
+        breakfastTextForSheet = 'Ассорти';
         assortedCount++;
         break;
       case 'turkish':
         breakfastText = currentLanguage === 'ru' ? 'Турецкий' : 'Turkish';
         breakfastTextFull = currentLanguage === 'ru' ? 'Турецкий завтрак' : 'Turkish breakfast';
+        breakfastTextForSheet = 'Турецкий';
         turkishCount++;
         break;
       default:
         breakfastText = '';
         breakfastTextFull = '';
+        breakfastTextForSheet = '';
     }
 
     let guestOrder = `${breakfastTextFull}`;
-    let guestOrderForSheet = `${index + 1}. ${breakfastText}`;
+    let guestOrderForSheet = `${index + 1}. ${breakfastTextForSheet}`;
 
     const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
     if (porridge && porridge.value !== 'none') {
       const porridgeText = porridge.selectedOptions[0].textContent;
+      const porridgeTextForSheet = porridges.find(p => p.value === porridge.value)?.ru || porridgeText;
       guestOrder += `, ${porridgeText}`;
-      guestOrderForSheet += `, ${porridgeText}`;
+      guestOrderForSheet += `, ${porridgeTextForSheet}`;
     }
 
     const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
     if (drink) {
       const drinkText = drink.selectedOptions[0].textContent;
+      const drinkTextForSheet = drinks.find(d => d.value === drink.value)?.ru || drinkText;
       guestOrder += `, ${drinkText}`;
-      guestOrderForSheet += `, ${drinkText}`;
+      guestOrderForSheet += `, ${drinkTextForSheet}`;
     }
 
     const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
     if (dish) {
       const dishText = dish.selectedOptions[0].textContent;
+      const dishTextForSheet = turkishDishes.find(d => d.value === dish.value)?.ru || dishText;
       guestOrder += `, ${dishText}`;
-      guestOrderForSheet += `, ${dishText}`;
+      guestOrderForSheet += `, ${dishTextForSheet}`;
     }
 
     const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
@@ -1336,13 +1346,16 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       extrasText = Array.from(extras)
         .map(extra => {
           const label = extra.nextSibling.textContent.trim();
-          return label.split(' – ')[0] + ' (доп.)';
+          const nameOnly = label.split(' – ')[0];
+          const extraLabel = currentLanguage === 'ru' ? '(доп.)' : '(extra)';
+          return `<span style="color:red">${nameOnly} ${extraLabel}</span>`;
         })
         .join(', ');
       extrasTextForSheet = Array.from(extras)
         .map(extra => {
           const label = extra.nextSibling.textContent.trim();
-          return label.split(' – ')[0] + ' (доп.)';
+          const nameOnly = label.split(' – ')[0];
+          return `${nameOnly} (доп.)`;
         })
         .join(', ');
       guestOrder += `, ${extrasText}`;
@@ -1350,7 +1363,7 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
     }
 
     if (comments) {
-      guestOrder += `, Комментарий: ${escapeHtml(comments)}`;
+      guestOrder += `, ${currentLanguage === 'ru' ? 'Комментарий' : 'Comment'}: ${escapeHtml(comments)}`;
       guestOrderForSheet += `, Комментарий: ${comments}`;
     }
 
@@ -1380,7 +1393,8 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       turkishCount: turkishCount,
       details: detailsForSheet.trim(),
       language: currentLanguage === 'ru' ? 'Русский' : 'English',
-      fullName: `${firstName} ${lastName}`
+      fullName: `${firstName} ${lastName}`,
+      format: formatValue === 'lunchbox' ? 'Ланчбокс' : '' // Добавляем формат подачи
     };
 
     fetch('https://script.google.com/macros/s/AKfycby9xxWLVRTHg16bgDTooOmB713vXWOMD4168wG8rzT2YF1AodEJW51_mwc3MENKds_T/exec', {
