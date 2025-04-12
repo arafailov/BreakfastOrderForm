@@ -1212,17 +1212,17 @@ function escapeHtml(text) {
 document.getElementById('breakfast-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
-  // Получаем данные из формы (предполагается, что эти переменные уже определены)
-  const dateValue = document.getElementById('date').value;
-  const time = document.getElementById('time').value;
-  const apartment = document.getElementById('apartment').value;
-  const guestsCount = document.getElementById('guests-count'); // Поле с количеством гостей
-  const guestCount = guestsCount.value; // Значение количества гостей
-  const guestsDetails = document.getElementById('guests-details'); // Контейнер блоков гостей
+  // Получаем данные из формы с правильными ID
+  const dateValue = document.getElementById('date-select').value;
+  const time = document.getElementById('time-select').value;
+  const apartment = document.getElementById('apartment-number').value;
+  const guestsCount = document.getElementById('guests-count');
+  const guestCount = guestsCount.value;
+  const guestsDetails = document.getElementById('guests-details');
   const firstName = document.getElementById('first-name').value;
   const lastName = document.getElementById('last-name').value;
   const comments = document.getElementById('comments')?.value || '';
-  const currentLanguage = document.querySelector('html').lang || 'ru'; // Определяем язык
+  const currentLanguage = document.querySelector('html').lang || 'ru';
 
   // Подсчет типов завтраков и формирование состава
   let heartyCount = 0;
@@ -1259,40 +1259,41 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
         breakfastText = '';
     }
 
-// Формирование состава
-let guestOrder = `${index + 1}. ${breakfastText}`;
-const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
-if (porridge) guestOrder += `, ${porridge.selectedOptions[0].textContent}`;
+    // Формирование состава
+    let guestOrder = `${index + 1}. ${breakfastText}`;
+    const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
+    if (porridge) guestOrder += `, ${porridge.selectedOptions[0].textContent}`;
 
-const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
-if (drink) guestOrder += `, ${drink.selectedOptions[0].textContent}`;
+    const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
+    if (drink) guestOrder += `, ${drink.selectedOptions[0].textContent}`;
 
-const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
-if (dish) guestOrder += `, ${dish.selectedOptions[0].textContent}`;
+    const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
+    if (dish) guestOrder += `, ${dish.selectedOptions[0].textContent}`;
 
-// Добавление доп. позиций с красным цветом и меткой "(доп.)"
-const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
-if (extras.length > 0) {
-  const extrasText = Array.from(extras)
-    .map(extra => {
-      const label = extra.nextSibling.textContent.trim();
-      const nameOnly = label.split(' – ')[0]; // Убираем цену, оставляем только название
-      return `<span style="color:red">${nameOnly} (доп.)</span>`;
-    })
-    .join(', ');
-  guestOrder += `, ${extrasText}`;
-}
+    // Добавление доп. позиций с красным цветом и меткой "(доп.)"
+    const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
+    if (extras.length > 0) {
+      const extrasText = Array.from(extras)
+        .map(extra => {
+          const label = extra.nextSibling.textContent.trim();
+          const nameOnly = label.split(' – ')[0]; // Убираем цену
+          return `<span style="color:red">${nameOnly} (доп.)</span>`;
+        })
+        .join(', ');
+      guestOrder += `, ${extrasText}`;
+    }
 
-if (comments) guestOrder += `, Комментарий: ${comments}`;
+    if (comments) guestOrder += `, Комментарий: ${comments}`;
 
-details += guestOrder + '\n';
+    details += guestOrder + '\n';
+  }); // Добавлена закрывающая скобка для forEach
 
   // Данные для отправки в Google Таблицу
   const data = {
     date: dateValue,
     time: time,
     apartment: apartment,
-    guestCount: guestCount, // Передаем количество гостей
+    guestCount: guestCount,
     heartyCount: heartyCount,
     sweetCount: sweetCount,
     assortedCount: assortedCount,
@@ -1310,11 +1311,12 @@ details += guestOrder + '\n';
     mode: 'no-cors'
   })
   .then(() => {
-    alert('Спасибо! Ваш заказ отправлен!');
+    showModal('Спасибо! Ваш заказ отправлен!');
+    resetFormAfterSubmit(); // Сброс формы после успешной отправки
   })
   .catch(error => {
     console.error('Ошибка:', error);
-    alert('Ошибка при отправке заказа.');
+    showModal('Ошибка при отправке заказа.');
   });
 });
 </script>
