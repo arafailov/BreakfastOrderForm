@@ -1260,6 +1260,57 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   tomorrow.setDate(tomorrow.getDate() + 1);
   const dateValue = dateSelect.value === 'today' ? formatDate(today) : formatDate(tomorrow);
 
+  // Подсчет типов завтраков
+  let heartyCount = 0;
+  let sweetCount = 0;
+  let assortedCount = 0;
+  let turkishCount = 0;
+  let details = '';
+
+  const guestBlocks = guestsDetails.querySelectorAll('.form-section');
+  guestBlocks.forEach((block, index) => {
+    const breakfastSelect = block.querySelector(`select[name="guest${index + 1}-breakfast"]`);
+    const breakfastValue = breakfastSelect.value;
+    const breakfastText = breakfastSelect.selectedOptions[0].textContent;
+
+    // Подсчет типов завтраков
+    if (breakfastValue === 'hearty') heartyCount++;
+    else if (breakfastValue === 'sweet') sweetCount++;
+    else if (breakfastValue === 'assorted') assortedCount++;
+    else if (breakfastValue === 'turkish') turkishCount++;
+
+    // Формирование состава
+    let guestOrder = `${index + 1}. ${breakfastText}`;
+    const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
+    if (porridge) {
+      const porridgeText = porridge.selectedOptions[0].textContent;
+      guestOrder += `, ${porridgeText}`;
+    }
+
+    const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
+    if (drink) {
+      guestOrder += `, ${drink.selectedOptions[0].textContent}`;
+    }
+
+    const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
+    if (dish) {
+      guestOrder += `, ${dish.selectedOptions[0].textContent}`;
+    }
+
+    const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
+    if (extras.length > 0) {
+      const extrasText = Array.from(extras).map(extra => extra.nextSibling.textContent.trim()).join(', ');
+      guestOrder += `, ${extrasText}`;
+    }
+
+    if (comments) {
+      guestOrder += `, Комментарий: ${comments}`;
+    }
+
+    details += guestOrder + '\n';
+  });
+
+  // Формируем orderSummary для модального окна
   let orderSummary = `<strong>${currentLanguage === 'ru' ? 'Ваш заказ:' : 'Your order:'}</strong><br><br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Имя' : 'First Name'}:</strong> ${escapeHtml(firstName)}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Фамилия' : 'Last Name'}:</strong> ${escapeHtml(lastName)}<br>`;
@@ -1267,57 +1318,53 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}:</strong> ${format}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Дата подачи' : 'Serving date'}:</strong> ${dateValue}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Время подачи' : 'Serving time'}:</strong> ${time}<br><br>`;
-
-  const guestBlocks = guestsDetails.querySelectorAll('.form-section');
-  guestBlocks.forEach((block, index) => {
-    const breakfast = block.querySelector(`select[name="guest${index + 1}-breakfast"]`).selectedOptions[0].textContent;
-    let guestOrder = breakfast;
-
-    const porridge = block.querySelector(`select[name="guest${index + 1}-porridge"]`);
-    if (porridge) {
-      const porridgeValue = porridge.value;
-      const porridgeText = porridge.selectedOptions[0].textContent;
-      if (porridgeValue === 'none') {
-        guestOrder += ` - ${currentLanguage === 'ru' ? 'Без каши' : 'No porridge'}`;
-      } else {
-        guestOrder += ` - ${porridgeText}`;
-      }
-    }
-
-    const drink = block.querySelector(`select[name="guest${index + 1}-drink"]`);
-    if (drink) {
-      guestOrder += ` - ${drink.selectedOptions[0].textContent}`;
-    }
-
-    const dish = block.querySelector(`select[name="guest${index + 1}-dish"]`);
-    if (dish) {
-      guestOrder += ` - ${dish.selectedOptions[0].textContent}`;
-    }
-
-    const extras = block.querySelectorAll(`input[name="guest${index + 1}-extras"]:checked`);
-    if (extras.length > 0) {
-      const extrasText = Array.from(extras).map(extra => extra.nextSibling.textContent.trim()).join(', ');
-      guestOrder += ` - ${extrasText}`;
-    }
-
-    orderSummary += `<strong>${currentLanguage === 'ru' ? 'Гость' : 'Guest'} ${index + 1}:</strong> ${guestOrder}<br>`;
-  });
-
-  if (comments) {
+  orderSummary += details.replace(/\n/g, '<br>');
+  if (comments && !details.includes('Комментарий')) {
     orderSummary += `<br><strong>${currentLanguage === 'ru' ? 'Комментарии' : 'Comments'}:</strong> ${escapeHtml(comments)}<br>`;
   }
-
   orderSummary += `<br><strong>${currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm the order?'}</strong>`;
 
+  // Подтверждение и отправка в Google Таблицу
   showConfirmModal(
     orderSummary,
     () => {
-      showModal(
-        currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!',
-        () => {
-          resetFormAfterSubmit();
+      const data = {
+        date: dateValue,
+        time: time,
+        apartment: apartment,
+        heartyCount: heartyCount,
+        sweetCount: sweetCount,
+        assortedCount: assortedCount,
+        turkishCount: turkishCount,
+        details: details.trim(),
+        language: currentLanguage === 'ru' ? 'Русский' : 'English',
+        fullName: `${firstName} ${lastName}`
+      };
+
+      fetch('YOUR_GOOGLE_SCRIPT_URL', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
         }
-      );
+      })
+      .then(response => response.text())
+      .then(result => {
+        if (result === 'Success') {
+          showModal(
+            currentLanguage === 'ru' ? 'Спасибо! Ваш заказ отправлен!' : 'Thank you! Your order has been sent!',
+            () => {
+              resetFormAfterSubmit();
+            }
+          );
+        } else {
+          showModal('Ошибка при отправке заказа. Попробуйте снова.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showModal('Ошибка при отправке заказа. Проверьте подключение.');
+      });
     },
     () => {
       // Ничего не делаем при отмене
