@@ -1234,7 +1234,7 @@ function resetFormAfterSubmit() {
 
 // Функция для экранирования HTML
 function escapeHtml(text) {
-  const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' };
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
