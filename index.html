@@ -375,6 +375,30 @@ h1#form-title {
     font-size: 0.9rem;
   }
 }
+    .guest-comment {
+  width: 100%;
+  height: 3rem; /* Высота для 2 строк */
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  font-family: 'Circe', sans-serif;
+  font-size: 0.9rem;
+  resize: none; /* Запрет изменения размера */
+}
+
+.guest-comment:focus {
+  outline: none;
+  border-color: #c49a5f;
+  box-shadow: 0 0 5px rgba(196, 154, 95, 0.3);
+}
+
+@media (max-width: 600px) {
+  .guest-comment {
+    font-size: 0.85rem;
+    height: 2.5rem;
+  }
+}
   </style>
 </head>
 
@@ -924,6 +948,16 @@ function regenerateGuests() {
         extrasSection.appendChild(checkboxLabel);
       });
     }
+
+    const guestCommentLabel = block.querySelector(`#guest${index + 1}-comment-label`);
+    if (guestCommentLabel) {
+      guestCommentLabel.textContent = currentLanguage === 'ru' ? 'Комментарий к заказу гостя' : 'Comment for this guest';
+    }
+
+    const guestComment = block.querySelector(`#guest${index + 1}-comment`);
+    if (guestComment) {
+      guestComment.placeholder = currentLanguage === 'ru' ? 'Особые пожелания (макс. 100 символов)' : 'Special requests (max 100 chars)';
+    }
   });
 }
 
@@ -962,6 +996,8 @@ guestsCount.addEventListener('change', () => {
         <div id="breakfast-desc${i}" class="breakfast-description"></div>
         <div id="extra-options-${i}"></div>
         <div id="extras-${i}" class="extras-section"></div>
+        <label id="guest${i}-comment-label" for="guest${i}-comment">${currentLanguage === 'ru' ? 'Комментарий к заказу гостя' : 'Comment for this guest'}</label>
+        <textarea id="guest${i}-comment" name="guest${i}-comment" class="guest-comment" maxlength="100" placeholder="${currentLanguage === 'ru' ? 'Особые пожелания (макс. 100 символов)' : 'Special requests (max 100 chars)'}" rows="2"></textarea>
       `;
 
       guestsDetails.appendChild(guestBlock);
@@ -1085,7 +1121,11 @@ function updateDefaultDate() {
   const currentTime = moscowHours * 60 + moscowMinutes;
   const restaurantCutoffTime = 11 * 60 + 30; // 11:30 по Москве
 
-  dateSelect.value = currentTime <= restaurantCutoffTime ? 'today' : 'tomorrow';
+  if (formatSelectEl.value === 'lunchbox') {
+    dateSelect.value = 'today'; // Для ланчбокса всегда "сегодня"
+  } else if (formatSelectEl.value === 'restaurant') {
+    dateSelect.value = currentTime <= restaurantCutoffTime ? 'today' : 'tomorrow';
+  }
 }
 
 formatSelectEl.addEventListener('change', () => {
@@ -1101,11 +1141,8 @@ formatSelectEl.addEventListener('change', () => {
 
   dateSection.style.display = formatSelectEl.value ? 'block' : 'none';
 
-  if (currentTime <= restaurantCutoffTime) {
-    dateSelect.value = 'today';
-  } else {
-    dateSelect.value = 'tomorrow';
-  }
+  // Устанавливаем дату по умолчанию в зависимости от формата подачи
+  updateDefaultDate();
 
   if (formatSelectEl.value === 'lunchbox' && currentTime > lunchboxCutoffTime) {
     showModal(
@@ -1209,6 +1246,10 @@ function resetFormAfterSubmit() {
   guestsCount.selectedIndex = 0;
   guestsDetails.innerHTML = '';
   commentsField.value = '';
+  
+  // Очистка комментариев гостей (на случай, если форма будет заполнена снова)
+  const guestComments = guestsDetails.querySelectorAll('.guest-comment');
+  guestComments.forEach(comment => (comment.value = ''));
 }
 
 // Функция для экранирования HTML
@@ -1227,9 +1268,9 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   const format = formatSelectEl.options[formatSelectEl.selectedIndex].text;
   const formatValue = formatSelectEl.value;
   const dateOption = dateSelect.value;
-  const time = timeSelect.options[timeSelect.selectedIndex]?.text || ''; // Исправлено: timeSelectEl на timeSelect
+  const time = timeSelect.options[timeSelect.selectedIndex]?.text || '';
   const guestsCountValue = guestsCount.value;
-  const comments = commentsField.value.trim();
+  const generalComments = commentsField.value.trim();
 
   // Проверка обязательных полей
   if (!firstName || !lastName || !apartment || !format || !dateOption || !time || !guestsCountValue) {
@@ -1347,9 +1388,17 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
       guestOrderForSheet += `, ${extrasTextForSheet}`;
     }
 
-    if (comments) {
-      guestOrder += `, ${currentLanguage === 'ru' ? 'Комментарий' : 'Comment'}: ${escapeHtml(comments)}`;
-      guestOrderForSheet += `, Комментарий: ${comments}`;
+    // Сбор комментария для конкретного гостя
+    const guestComment = block.querySelector(`textarea[name="guest${index + 1}-comment"]`);
+    const guestCommentText = guestComment ? guestComment.value.trim() : '';
+    if (guestCommentText) {
+      guestOrder += `, ${currentLanguage === 'ru' ? 'Комментарий' : 'Comment'}: ${escapeHtml(guestCommentText)}`;
+      guestOrderForSheet += `, Комментарий: ${guestCommentText}`;
+    }
+
+    // Добавление общего комментария, если он есть
+    if (generalComments) {
+      guestOrderForSheet += `, Общий комментарий: ${generalComments}`;
     }
 
     guestOrders.push(`<strong>${currentLanguage === 'ru' ? 'Гость' : 'Guest'} ${index + 1}:</strong> ${guestOrder}`);
@@ -1361,6 +1410,12 @@ document.getElementById('breakfast-form').addEventListener('submit', function(ev
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Дата и время заказа' : 'Date and time'}:</strong> ${dateValue}, ${time}<br>`;
   orderSummary += `<strong>${currentLanguage === 'ru' ? 'Формат подачи' : 'Serving format'}:</strong> ${format}<br><br>`;
   orderSummary += guestOrders.join('<br>');
+
+  // Добавление общего комментария в модальное окно, если он есть
+  if (generalComments) {
+    orderSummary += `<br><br><strong>${currentLanguage === 'ru' ? 'Общий комментарий' : 'General comment'}:</strong> ${escapeHtml(generalComments)}`;
+  }
+
   orderSummary += `<br><br><strong>${currentLanguage === 'ru' ? 'Подтвердить заказ?' : 'Confirm order?'}</strong>`;
 
   showConfirmModal(orderSummary, () => {
