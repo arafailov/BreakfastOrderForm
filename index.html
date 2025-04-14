@@ -431,7 +431,7 @@ h1#form-title {
     </ul>
     <p><strong>Турецкий завтрак</strong> доступен только в ресторане.</p>
     <p>Заполните короткую форму ниже: укажите номер апартамента, дату, формат подачи и пожелания к завтраку.<br>
-    Если появятся вопросы — всегда рады помочь на ресепшене!</p>
+    Если появятся вопросы — всегда рады помочь на ресепшен!</p>
   </div>
   <div id="intro-en" class="intro-text" style="display: none;">
     <p><strong>Every morning from 9:30 AM to 11:30 AM</strong>, we invite you to breakfast at Memet&PIR restaurant.<br>
@@ -1147,8 +1147,8 @@ formatSelectEl.addEventListener('change', () => {
   if (formatSelectEl.value === 'lunchbox' && currentTime > lunchboxCutoffTime) {
     showModal(
       currentLanguage === 'ru'
-        ? 'Ланчбокс можно заказать только до 20:00 по московскому времени. Подача будет организована в ресторане.'
-        : 'Lunchbox orders are only available until 8 PM Moscow time. Serving will be arranged at the restaurant.',
+        ? 'Ланчбокс можно заказать только до 20:00 по московскому времени. Для дополнительной информации, пожалуйста, обратитесь на ресепшен'
+        : 'Lunchbox orders are only available until 8 PM Moscow time. For additional information please contac the reception',
       () => {
         formatSelectEl.value = 'restaurant';
         formatSelectEl.dispatchEvent(new Event('change'));
@@ -1160,8 +1160,8 @@ formatSelectEl.addEventListener('change', () => {
   if (formatSelectEl.value === 'lunchbox' && currentTime <= restaurantCutoffTime) {
     showConfirmModal(
       currentLanguage === 'ru'
-        ? 'Ланчбокс готовят с вечера. Если на следующий день вам нужно позавтракать раньше, чем открывается ресторан, подача будет сегодня с 20:00. Вы уверены?'
-        : 'Lunchboxes are prepared in the evening. If you need breakfast before the restaurant opens the next day, it will be served today from 8:00 PM. Are you sure?',
+        ? 'Ланчбокс готовят с вечера, на случай, если на следующий день вам нужно позавтракать раньше, чем открывается ресторан. Подача будет сегодня с 21:00. Вы уверены?'
+        : 'Lunchboxes are prepared in the evening, in case if you need breakfast before the restaurant opens the next day. It will be served today from 21:00 PM. Are you sure?',
       () => {
         updateFormatOptions();
       },
@@ -1178,8 +1178,8 @@ formatSelectEl.addEventListener('change', () => {
   function updateFormatOptions() {
     if (formatSelectEl.value === 'restaurant') {
       formatInfoEl.textContent = currentLanguage === 'ru'
-        ? 'Ресторан находится рядом с основным ресепшеном. Отдельный вход налево от выхода.'
-        : 'The restaurant is located next to the main reception. Separate entrance to the left.';
+        ? 'Ресторан находится со стороны 2-й Советской улицы.'
+        : 'The restaurant is located next to the main entrance.';
       timeSection.style.display = 'block';
 
       const restaurantTimes = ['9:30-10:00', '10:00-10:30', '10:30-11:00', '11:00-11:30'];
@@ -1197,7 +1197,7 @@ formatSelectEl.addEventListener('change', () => {
         : 'The lunchbox should be picked up at the reception in the evening.';
       timeSection.style.display = 'block';
 
-      const lunchboxTimes = ['20:00-20:30', '20:30-21:00', '21:00-21:30'];
+      const lunchboxTimes = ['21:00-21:30', '21:30-22:00'];
       lunchboxTimes.forEach(time => {
         const option = document.createElement('option');
         option.value = time;
