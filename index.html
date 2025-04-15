@@ -339,6 +339,7 @@ h1#form-title {
 .intro-text {
   max-width: 100%;
   margin: 0 auto;
+  text-align: center; /* Усиливаем центрирование */
 }
 
 .intro-text p {
@@ -351,14 +352,14 @@ h1#form-title {
   list-style: none;
   padding: 0;
   margin: 0 auto 1rem;
-  width: fit-content;
-  text-align: left;
+  display: inline-block; /* Возвращаем inline-block для центрирования блока */
 }
 
 .intro-text ul li {
   position: relative;
   padding-left: 1.5rem;
   margin-bottom: 0.5rem;
+  text-align: center; /* Текст внутри li выравниваем по левому краю */
 }
 
 .intro-text ul li:before {
