@@ -244,14 +244,22 @@ h1#form-title {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
   max-width: 90%;
+  min-width: 300px;
+  width: auto;
+  box-sizing: border-box;
   font-family: 'Circe', sans-serif;
   animation: modalFadeIn 0.3s ease-out;
 }
 
-#modal-window p {
+#modal-message {
   font-size: 1.1rem;
   color: #262d36;
   margin-bottom: 1.5rem;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  margin: 0 auto 1.5rem;
 }
 
 #modal-ok-button {
@@ -265,7 +273,10 @@ h1#form-title {
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-family: 'Circe', sans-serif;
-}
+  width: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: inline-block;
 
 #modal-ok-button:hover {
   background-color: #a47f48;
